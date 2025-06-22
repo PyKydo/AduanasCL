@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integración SAG - Sistema de Aduanas</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+    <script>
+      // Aplicar modo oscuro inmediatamente para evitar flash
+      (function () {
+        const theme = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        if (theme === "dark" || (!theme && prefersDark)) {
+          document.documentElement.classList.add("darkmode");
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../../assets/css/styles.css" />
+    <link rel="stylesheet" href="../../assets/css/forms.css" />
+    <link rel="stylesheet" href="../../assets/css/modulos.css" />
+  </head>
+  <body>
+    <a
+      href="https://www.gob.cl/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Gobierno de Chile"
+      class="banner-gob-header-link"
+    >
+      <svg
+        id="Capa_1"
+        data-name="Capa 1"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 109.3 31.3"
+        class="banner-gob-header-svg"
+      >
+        <defs>
+          <style>
+            .cls-1 {
+              fill: #fff;
+            }
+            .cls-2 {
+              fill: #e53f40;
+            }
+            .cls-3 {
+              fill: #006fb3;
+            }
+          </style>
+        </defs>
+        <polygon
+          id="Fill-3"
+          class="cls-1"
+          points="54 31.3 54.7 31.3 54.7 14 54 14 54 31.3"
+        />
+        <path
+          id="Fill-4"
+          class="cls-1"
+          d="M70,27.6a10.66,10.66,0,0,1-4.5,1.1c-3.7,0-5.5-2.4-5.5-6.1s1.8-5.9,5.7-5.9a6.91,6.91,0,0,1,4.1,1.1l-1.2,2.1a5.91,5.91,0,0,0-2.9-.8c-2,0-2.8,1.3-2.8,3.5,0,2.6.9,3.9,2.8,3.9a4.13,4.13,0,0,0,1.7-.3V24.5H66l-.2-2H70Z"
+        />
+        <path
+          id="Fill-5"
+          class="cls-1"
+          d="M76.6,24.3c0-1.9-.5-2.4-1.3-2.4s-1.3.4-1.3,2.4.5,2.4,1.3,2.4,1.3-.5,1.3-2.4m2.7,0c0,2.9-1.4,4.4-4,4.4s-4-1.5-4-4.4c0-2.4,1.4-4.3,4-4.3s4,1.9,4,4.3"
+        />
+        <path
+          id="Fill-6"
+          class="cls-1"
+          d="M84,25.9a1.66,1.66,0,0,0,1.3.8c.7,0,1.4-.6,1.4-2.4s-.6-2.4-1.4-2.4a1.89,1.89,0,0,0-1.3.5Zm-1.3,2.6H81.3V16.7H84v2.8L83.8,21a2.5,2.5,0,0,1,2.1-1c1.8,0,3.4,1.3,3.4,4.3s-1.8,4.4-3.7,4.4a2.41,2.41,0,0,1-2.4-1.2Z"
+        />
+        <polygon
+          id="Fill-7"
+          class="cls-1"
+          points="90.7 28.7 93.3 28.7 93.3 26 90.7 26 90.7 28.7"
+        />
+        <path
+          id="Fill-8"
+          class="cls-1"
+          d="M101.3,22.5a5,5,0,0,0-2.1-.5c-1,0-1.7.6-1.7,2.3s.6,2.3,1.7,2.3a5.57,5.57,0,0,0,2.3-.6l.5,1.9a8.17,8.17,0,0,1-3,.7c-2.8,0-4.3-1.5-4.3-4.4,0-2.7,1.5-4.3,4.3-4.3a5.59,5.59,0,0,1,3,.7Z"
+        />
+        <path
+          id="Fill-9"
+          class="cls-1"
+          d="M106.1,16.7v9.2a.66.66,0,0,0,.6.7l.7.1v1.9a7.38,7.38,0,0,1-1.4.2c-1.7,0-2.6-.9-2.6-2.3V16.8h2.7Z"
+        />
+        <polygon
+          id="Fill-10"
+          class="cls-2"
+          points="54.7 6 109.3 6 109.3 0 54.7 0 54.7 6"
+        />
+        <polygon
+          id="Fill-11"
+          class="cls-3"
+          points="0 6 54.7 6 54.7 0 0 0 0 6"
+        />
+        <path
+          class="cls-1"
+          d="M47.6,22V19.7l-.2-.7a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H43.9l-.2-.6a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H40.1L40,19a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H36.4l-.2-.6a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H32.7V17.5l-.2-.6a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H27.8l-.2-.6a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4v.6H23l-.1-.5a.76.76,0,0,0,.2-.4.5.5,0,0,0-1,0,.76.76,0,0,0,.2.4l-.2.6H18.2l-.2-.7a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6v2.1H14.5l-.2-.6a.76.76,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H10.7l-.2-.6a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H7.1L6.9,19a.52.52,0,0,0,.2-.4.5.5,0,0,0-1,0,.52.52,0,0,0,.2.4l-.2.6H3.4L3.2,19a.52.52,0,0,0,.2-.4A.47.47,0,0,0,3,18.1H2.9a.47.47,0,0,0-.5.44v.06a.52.52,0,0,0,.2.4l-.2.7V22H2v1.2h.4v4.2H2v1.2H23.4V24a1.7,1.7,0,0,1,3.4,0v4.6H48V27.4h-.4V23.2H48V22Zm-42,5.4H4.1v-2H5.6Zm0-5.2v2H4.1V22.1H5.6Zm3.8,5.2H7.9v-2H9.4Zm0-5.2v2H7.9V22.1H9.4Zm3.8,5.2H11.7v-2h1.5Zm0-5.2v2H11.7V22.1h1.5ZM17,27.4H15.4v-2H17Zm0-3.3h0l-.1.1H15.4v-2h.1v-.1H17Zm3.8,3.3H19.3v-2h1.5Zm0-5.2v2H19.3V22.1h1.5Zm0-1.2H19.3V19h1.5Zm5.1,0H24.1V19h1.8Zm4.7,6.4H29.1v-2h1.5Zm0-5.2v2H29.1V22.1h1.5Zm0-1.2H29.1V19h1.5Zm3.9,6.4H33v-2h1.5Zm0-5.2v2H33V22.1h1.5Zm3.8,5.2H36.8v-2h1.5Zm0-5.2v2H36.8V22.1h1.5ZM42,27.4H40.5v-2H42Zm0-5.2v2H40.5V22.1H42Zm3.8,5.2H44.3v-2h1.5Zm0-5.2v2H44.3V22.1h1.5Z"
+        />
+      </svg>
+    </a>
+    <header>
+      <div class="logo">
+        <a href="../../index.html"
+          ><img src="../../assets/icons/logo.png" alt="Logo Institucional"
+        /></a>
+      </div>
+      <nav class="main-nav">
+        <button
+          class="menu-toggle"
+          aria-expanded="false"
+          aria-controls="menu-items"
+          aria-haspopup="menu"
+        >
+          <span class="sr-only">Abrir menú principal</span
+          ><img
+            src="../../assets/icons/menu-icon.svg"
+            alt=""
+            style="width: 24px; height: 24px"
+          />
+        </button>
+        <ul id="menu-items" class="menu-items">
+          <li>
+            <a href="../../index.html"
+              ><span data-translate-key="nav_home">Inicio</span></a
+            >
+          </li>
+          <li>
+            <a href="../../tramites.html"
+              ><span data-translate-key="nav_procedures">Trámites</span></a
+            >
+          </li>
+          <li>
+            <a href="../../seguimiento.html"
+              ><span data-translate-key="nav_tracking">Seguimiento</span></a
+            >
+          </li>
+          <li>
+            <a href="../../contacto.html"
+              ><span data-translate-key="nav_contact">Contacto</span></a
+            >
+          </li>
+          <li>
+            <button
+              class="darkmode-toggle"
+              id="themeToggle"
+              aria-label="Cambiar modo oscuro/claro"
+            >
+              <span class="material-symbols-outlined">dark_mode</span>
+            </button>
+          </li>
+          <li>
+            <button
+              class="login-toggle"
+              id="loginToggle"
+              aria-label="Iniciar sesión"
+            >
+              <span class="material-symbols-outlined">login</span>
+              <span class="login-text">Iniciar Sesión</span>
+            </button>
+          </li>
+          <li>
+            <label for="lang-select" class="sr-only">Seleccionar Idioma</label>
+            <select
+              id="lang-select"
+              name="language"
+              title="Selector de idioma. La traducción completa del sitio aún no está implementada."
+            >
+              <option value="es" lang="es" selected>Español</option>
+              <option value="en" lang="en">Inglés</option>
+            </select>
+          </li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- Panel de Autenticación -->
+    <div id="auth-panel" class="auth-panel" style="display: none">
+      <div class="auth-content">
+        <div class="auth-header">
+          <h2>Iniciar Sesión</h2>
+          <button
+            class="auth-close"
+            id="authClose"
+            aria-label="Cerrar panel de autenticación"
+          >
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
+        <form id="login-form" class="auth-form">
+          <div class="form-group">
+            <label for="login-rut">RUT:</label>
+            <input
+              type="text"
+              id="login-rut"
+              name="rut"
+              placeholder="12345678-9"
+              required
+            />
+            <div class="error-message" aria-live="polite"></div>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Contraseña:</label>
+            <input
+              type="password"
+              id="login-password"
+              name="password"
+              placeholder="Ingrese su contraseña"
+              required
+            />
+            <div class="error-message" aria-live="polite"></div>
+          </div>
+          <div class="form-group">
+            <label for="login-role">Tipo de Usuario:</label>
+            <select id="login-role" name="role" required>
+              <option value="">Seleccione un rol...</option>
+              <option value="usuario">Usuario (Viajero)</option>
+              <option value="funcionario">Funcionario de Aduanas</option>
+              <option value="admin">Administrador</option>
+            </select>
+            <div class="error-message" aria-live="polite"></div>
+          </div>
+          <button type="submit" class="button button-primary">
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Panel de Usuario Autenticado -->
+    <div id="user-panel" class="user-panel" style="display: none">
+      <div class="user-content">
+        <div class="user-header">
+          <div class="user-info">
+            <span class="material-symbols-outlined">account_circle</span>
+            <div>
+              <h3 id="user-name">Usuario</h3>
+              <p id="user-role">Rol</p>
+            </div>
+          </div>
+          <button class="logout-btn" id="logoutBtn" aria-label="Cerrar sesión">
+            <span class="material-symbols-outlined">logout</span>
+            <span>Cerrar Sesión</span>
+          </button>
+        </div>
+        <div class="user-dashboard">
+          <div class="dashboard-metrics">
+            <div class="metric-card">
+              <span class="material-symbols-outlined">description</span>
+              <div>
+                <h4>Trámites Activos</h4>
+                <p id="active-procedures">0</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="material-symbols-outlined">schedule</span>
+              <div>
+                <h4>Pendientes</h4>
+                <p id="pending-procedures">0</p>
+              </div>
+            </div>
+            <div class="metric-card">
+              <span class="material-symbols-outlined">check_circle</span>
+              <div>
+                <h4>Completados</h4>
+                <p id="completed-procedures">0</p>
+              </div>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <h4>Acciones Rápidas</h4>
+            <div class="action-buttons">
+              <button
+                class="button button-secondary"
+                onclick="window.location.href='../../tramites.html'"
+              >
+                <span class="material-symbols-outlined">add</span>
+                Nuevo Trámite
+              </button>
+              <button
+                class="button button-secondary"
+                onclick="window.location.href='../../seguimiento.html'"
+              >
+                <span class="material-symbols-outlined">search</span>
+                Seguimiento
+              </button>
+              <button
+                class="button button-secondary"
+                id="adminPanelBtn"
+                style="display: none"
+              >
+                <span class="material-symbols-outlined"
+                  >admin_panel_settings</span
+                >
+                Panel Admin
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="page-header">
+          <h2>Integración SAG - Servicio Agrícola y Ganadero</h2>
+          <p>
+            Gestión de declaraciones juradas de productos animales y vegetales
+          </p>
+        </div>
+
+        <!-- Estado de Conexión -->
+        <div class="connection-status">
+          <div class="status-indicator">
+            <span class="status-dot connected"></span>
+            <span class="status-text">Conectado al SAG</span>
+          </div>
+          <div class="connection-info">
+            <p>
+              Última sincronización: <span id="lastSync">Hace 2 minutos</span>
+            </p>
+            <p>
+              Estado del servicio: <span class="service-status">Operativo</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Tipo de Declaración -->
+        <div class="process-selector">
+          <h3>Seleccione el tipo de declaración:</h3>
+          <div class="process-options">
+            <button
+              class="process-btn active"
+              data-process="productos-animales"
+            >
+              <span class="material-symbols-outlined">pets</span>
+              Productos Animales
+            </button>
+            <button class="process-btn" data-process="productos-vegetales">
+              <span class="material-symbols-outlined">eco</span>
+              Productos Vegetales
+            </button>
+            <button class="process-btn" data-process="mascotas">
+              <span class="material-symbols-outlined">pets</span>
+              Mascotas
+            </button>
+            <button class="process-btn" data-process="consultar">
+              <span class="material-symbols-outlined">search</span>
+              Consultar Estado
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulario de Declaración -->
+        <form id="formSAG" class="form-module">
+          <!-- Datos del Declarante -->
+          <fieldset class="form-section">
+            <legend>
+              <span class="material-symbols-outlined">person</span>
+              Datos del Declarante
+            </legend>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="rutDeclarante">RUT del Declarante *</label>
+                <input
+                  type="text"
+                  id="rutDeclarante"
+                  name="rutDeclarante"
+                  placeholder="12345678-9"
+                  required
+                />
+                <span class="validation-message" id="rutDeclaranteError"></span>
+              </div>
+
+              <div class="form-group">
+                <label for="nombresDeclarante">Nombres *</label>
+                <input
+                  type="text"
+                  id="nombresDeclarante"
+                  name="nombresDeclarante"
+                  required
+                />
+                <span
+                  class="validation-message"
+                  id="nombresDeclaranteError"
+                ></span>
+              </div>
+
+              <div class="form-group">
+                <label for="apellidosDeclarante">Apellidos *</label>
+                <input
+                  type="text"
+                  id="apellidosDeclarante"
+                  name="apellidosDeclarante"
+                  required
+                />
+                <span
+                  class="validation-message"
+                  id="apellidosDeclaranteError"
+                ></span>
+              </div>
+
+              <div class="form-group">
+                <label for="emailDeclarante">Email *</label>
+                <input
+                  type="email"
+                  id="emailDeclarante"
+                  name="emailDeclarante"
+                  required
+                />
+                <span
+                  class="validation-message"
+                  id="emailDeclaranteError"
+                ></span>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Información del Producto -->
+          <fieldset class="form-section" id="infoProducto">
+            <legend>
+              <span class="material-symbols-outlined">inventory</span>
+              Información del Producto
+            </legend>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="tipoProducto">Tipo de Producto *</label>
+                <select id="tipoProducto" name="tipoProducto" required>
+                  <option value="">Seleccione...</option>
+                  <option value="carne">Carne</option>
+                  <option value="lacteos">Lácteos</option>
+                  <option value="huevos">Huevos</option>
+                  <option value="miel">Miel</option>
+                  <option value="frutas">Frutas</option>
+                  <option value="verduras">Verduras</option>
+                  <option value="granos">Granos</option>
+                  <option value="semillas">Semillas</option>
+                  <option value="flores">Flores</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="cantidad">Cantidad *</label>
+                <input
+                  type="number"
+                  id="cantidad"
+                  name="cantidad"
+                  min="1"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="unidadMedida">Unidad de Medida *</label>
+                <select id="unidadMedida" name="unidadMedida" required>
+                  <option value="">Seleccione...</option>
+                  <option value="kg">Kilogramos (kg)</option>
+                  <option value="g">Gramos (g)</option>
+                  <option value="l">Litros (L)</option>
+                  <option value="ml">Mililitros (ml)</option>
+                  <option value="unidades">Unidades</option>
+                  <option value="docenas">Docenas</option>
+                  <option value="cajas">Cajas</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="paisOrigen">País de Origen *</label>
+                <select id="paisOrigen" name="paisOrigen" required>
+                  <option value="">Seleccione...</option>
+                  <option value="chile">Chile</option>
+                  <option value="argentina">Argentina</option>
+                  <option value="peru">Perú</option>
+                  <option value="bolivia">Bolivia</option>
+                  <option value="brasil">Brasil</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fechaProduccion">Fecha de Producción</label>
+                <input
+                  type="date"
+                  id="fechaProduccion"
+                  name="fechaProduccion"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="fechaVencimiento">Fecha de Vencimiento</label>
+                <input
+                  type="date"
+                  id="fechaVencimiento"
+                  name="fechaVencimiento"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Información de Mascotas (condicional) -->
+          <fieldset
+            class="form-section"
+            id="infoMascotas"
+            style="display: none"
+          >
+            <legend>
+              <span class="material-symbols-outlined">pets</span>
+              Información de Mascota
+            </legend>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="especieMascota">Especie *</label>
+                <select id="especieMascota" name="especieMascota">
+                  <option value="">Seleccione...</option>
+                  <option value="perro">Perro</option>
+                  <option value="gato">Gato</option>
+                  <option value="ave">Ave</option>
+                  <option value="reptil">Reptil</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="razaMascota">Raza</label>
+                <input type="text" id="razaMascota" name="razaMascota" />
+              </div>
+
+              <div class="form-group">
+                <label for="edadMascota">Edad (años)</label>
+                <input
+                  type="number"
+                  id="edadMascota"
+                  name="edadMascota"
+                  min="0"
+                  max="30"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="pesoMascota">Peso (kg)</label>
+                <input
+                  type="number"
+                  id="pesoMascota"
+                  name="pesoMascota"
+                  min="0"
+                  step="0.1"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="vacunasMascota">Vacunas al día</label>
+                <select id="vacunasMascota" name="vacunasMascota">
+                  <option value="">Seleccione...</option>
+                  <option value="si">Sí</option>
+                  <option value="no">No</option>
+                  <option value="parcial">Parcialmente</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="microchipMascota">Microchip</label>
+                <input
+                  type="text"
+                  id="microchipMascota"
+                  name="microchipMascota"
+                  placeholder="Número de microchip"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Documentación -->
+          <fieldset class="form-section">
+            <legend>
+              <span class="material-symbols-outlined">description</span>
+              Documentación Requerida
+            </legend>
+
+            <div class="document-upload-section">
+              <div class="form-group">
+                <label for="certificadoSanitario"
+                  >Certificado Sanitario *</label
+                >
+                <div class="file-upload-container">
+                  <input
+                    type="file"
+                    id="certificadoSanitario"
+                    name="certificadoSanitario"
+                    accept=".pdf,.jpg,.png,.jpeg"
+                    required
+                  />
+                  <div class="file-upload-preview" id="filePreviewCertificado">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <span>Haga clic para seleccionar archivo</span>
+                  </div>
+                </div>
+                <span
+                  class="validation-message"
+                  id="certificadoSanitarioError"
+                ></span>
+              </div>
+
+              <div class="form-group">
+                <label for="facturaComercial">Factura Comercial</label>
+                <div class="file-upload-container">
+                  <input
+                    type="file"
+                    id="facturaComercial"
+                    name="facturaComercial"
+                    accept=".pdf,.jpg,.png,.jpeg"
+                  />
+                  <div class="file-upload-preview" id="filePreviewFactura">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <span>Factura comercial (opcional)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="documentosAdicionales"
+                  >Documentos Adicionales</label
+                >
+                <div class="file-upload-container">
+                  <input
+                    type="file"
+                    id="documentosAdicionales"
+                    name="documentosAdicionales"
+                    accept=".pdf,.jpg,.png,.jpeg"
+                    multiple
+                  />
+                  <div class="file-upload-preview" id="filePreviewAdicionales">
+                    <span class="material-symbols-outlined">upload_file</span>
+                    <span>Documentos adicionales (opcional)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Información del Viaje -->
+          <fieldset class="form-section">
+            <legend>
+              <span class="material-symbols-outlined">flight</span>
+              Información del Viaje
+            </legend>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="tipoMovimiento">Tipo de Movimiento *</label>
+                <select id="tipoMovimiento" name="tipoMovimiento" required>
+                  <option value="">Seleccione...</option>
+                  <option value="importacion">Importación</option>
+                  <option value="exportacion">Exportación</option>
+                  <option value="transito">Tránsito</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fechaMovimiento">Fecha del Movimiento *</label>
+                <input
+                  type="date"
+                  id="fechaMovimiento"
+                  name="fechaMovimiento"
+                  required
+                />
+                <span
+                  class="validation-message"
+                  id="fechaMovimientoError"
+                ></span>
+              </div>
+
+              <div class="form-group">
+                <label for="puntoEntrada">Punto de Entrada/Salida</label>
+                <select id="puntoEntrada" name="puntoEntrada">
+                  <option value="">Seleccione...</option>
+                  <option value="aeropuerto">Aeropuerto</option>
+                  <option value="puerto">Puerto</option>
+                  <option value="paso_fronterizo">Paso Fronterizo</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="observaciones">Observaciones</label>
+                <textarea
+                  id="observaciones"
+                  name="observaciones"
+                  rows="3"
+                  placeholder="Información adicional relevante"
+                ></textarea>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Botones de Acción -->
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="btnLimpiar">
+              <span class="material-symbols-outlined">clear</span>
+              Limpiar Formulario
+            </button>
+            <button type="button" class="btn-secondary" id="btnGuardarBorrador">
+              <span class="material-symbols-outlined">save</span>
+              Guardar Borrador
+            </button>
+            <button type="submit" class="btn-primary" id="btnProcesar">
+              <span class="material-symbols-outlined">send</span>
+              Procesar Declaración SAG
+            </button>
+          </div>
+        </form>
+
+        <div style="display: flex; justify-content: center">
+          <button
+            id="btnTestAutoSAG"
+            type="button"
+            style="
+              margin: 0.5rem 0;
+              background: #f3f3f3;
+              color: #888;
+              border: none;
+              box-shadow: none;
+              opacity: 0.6;
+              font-size: 0.95em;
+              padding: 0.4em 1.2em;
+              border-radius: 6px;
+              cursor: pointer;
+            "
+          >
+            Prueba automática
+          </button>
+        </div>
+
+        <!-- Panel de Resultados -->
+        <div class="results-panel" id="resultsPanel" style="display: none">
+          <div class="results-header">
+            <h3>Resultado del Procesamiento SAG</h3>
+            <button class="close-results" id="closeResults">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="results-content" id="resultsContent">
+            <!-- Contenido dinámico -->
+          </div>
+        </div>
+
+        <!-- Panel de Consulta -->
+        <div class="query-panel" id="queryPanel" style="display: none">
+          <div class="query-header">
+            <h3>Consulta de Estado SAG</h3>
+            <button class="close-query" id="closeQuery">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          <div class="query-content" id="queryContent">
+            <!-- Contenido dinámico -->
+          </div>
+        </div>
+
+        <script type="module">
+          import {
+            saveTramiteSubmission,
+            getTramiteSubmissions,
+          } from "../../assets/js/modules/localStorage-helpers.js";
+
+          const form = document.getElementById("formSAG");
+          const btnTest = document.getElementById("btnTestAutoSAG");
+
+          function mostrarMensaje(mensaje, tipo = "success") {
+            // alert(mensaje); // Eliminar esta línea, solo usar mensajes visuales
+          }
+
+          function limpiarFormulario() {
+            form.reset();
+          }
+
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const datos = Object.fromEntries(new FormData(form).entries());
+            const numeroTramite = "SAG-" + Date.now().toString().slice(-6);
+            const tramite = {
+              numeroTramite,
+              tipoTramite: "sag",
+              estado: "Enviado",
+              fecha: new Date().toISOString(),
+              datos,
+              observaciones: "",
+            };
+            saveTramiteSubmission(tramite);
+            if (
+              window.integracionSAG &&
+              typeof window.integracionSAG.mostrarMensajeVisual === "function"
+            ) {
+              window.integracionSAG.mostrarMensajeVisual(
+                "Trámite guardado exitosamente.",
+                "success"
+              );
+            }
+            if (
+              window.validationSystem &&
+              typeof window.validationSystem.validateAllFields === "function"
+            ) {
+              const esValido = window.validationSystem.validateAllFields(form);
+              const exito = document.querySelector(".alert-success");
+              if (esValido && exito) {
+                setTimeout(() => {
+                  form.reset();
+                }, 2500);
+              }
+            }
+          });
+
+          btnTest.addEventListener("click", function () {
+            // Refuerzo: asegurar que el campo no esté deshabilitado ni readonly
+            form.rutDeclarante.disabled = false;
+            form.rutDeclarante.readOnly = false;
+            form.rutDeclarante.value = "12345678-5";
+            form.rutDeclarante.dispatchEvent(new Event("input"));
+            form.nombresDeclarante.value = "Carlos";
+            form.apellidosDeclarante.value = "Soto";
+            form.emailDeclarante.value = "carlos.soto@mail.com";
+            // Seleccionar aleatoriamente un valor válido para cada select
+            function pickRandom(select) {
+              const opts = Array.from(select.options).filter(
+                (o) => o.value && o.value !== ""
+              );
+              if (opts.length)
+                select.value =
+                  opts[Math.floor(Math.random() * opts.length)].value;
+            }
+            pickRandom(form.tipoMovimiento);
+            form.fechaMovimiento.value = "2025-01-01";
+            pickRandom(form.tipoProducto);
+            form.cantidad.value = "10";
+            pickRandom(form.unidadMedida);
+            pickRandom(form.paisOrigen);
+            // Forzar el evento change para los select
+            form.tipoMovimiento.dispatchEvent(new Event("change"));
+            form.tipoProducto.dispatchEvent(new Event("change"));
+            form.unidadMedida.dispatchEvent(new Event("change"));
+            form.paisOrigen.dispatchEvent(new Event("change"));
+            // Simular archivo (si existe input file)
+            const fileInput = form.querySelector('input[type="file"]');
+            if (fileInput) {
+              fileInput.disabled = false;
+              fileInput.readOnly = false;
+              const data = new Blob(["contenido de prueba"], {
+                type: "text/plain",
+              });
+              const testFile = new File([data], "documento_sag.txt", {
+                type: "text/plain",
+              });
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(testFile);
+              fileInput.files = dataTransfer.files;
+              fileInput.dispatchEvent(new Event("change"));
+            }
+            // Forzar validación de todos los campos al final
+            if (
+              window.validationSystem &&
+              typeof window.validationSystem.validateAllFields === "function"
+            ) {
+              const esValido = window.validationSystem.validateAllFields(form);
+              // Confirmar que se haya hecho submit exitoso antes de resetear
+              const exito = document.querySelector(".alert-success");
+              if (esValido && exito) {
+                setTimeout(() => {
+                  form.reset();
+                }, 2500);
+              }
+            }
+          });
+        </script>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>Este es un prototipo - No todas las funcionalidades están activas</p>
+      <p>
+        &copy;
+        <script>
+          document.write(new Date().getFullYear());
+        </script>
+        Portal de Aduanas. Todos los derechos reservados.
+      </p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../../assets/js/form-validation-standalone.js"></script>
+    <script src="../../assets/js/main-standalone.js"></script>
+    <script src="../../assets/js/modules/integracion-sag.js"></script>
+  </body>
+</html>

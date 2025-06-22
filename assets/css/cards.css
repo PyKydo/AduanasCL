@@ -1,0 +1,101 @@
+/* ============================================= */
+/* ==          ESTILOS BASE DE TARJETAS       == */
+/* ============================================= */
+
+/*
+ * La clase `.card` define el estilo base para todos los componentes
+ * tipo "tarjeta" en el sitio. Está diseñada para ser genérica y
+ * extensible.
+ *
+ * Propiedades Clave:
+ * - `background-color`: Utiliza `var(--surface-color)` para adaptarse
+ *   automáticamente al modo claro/oscuro.
+ * - `border`: Un borde sutil que usa `var(--border-color)`.
+ * - `border-radius`: Bordes redondeados consistentes (`--border-radius-md`).
+ * - `box-shadow`: Una sombra suave para dar profundidad en modo claro.
+ * - `transition`: Transiciones suaves para efectos hover.
+ *
+ * Modo Oscuro:
+ * - En modo oscuro, la sombra se elimina para un look más plano y limpio,
+ *   y los colores de fondo y borde se actualizan automáticamente por las
+ *   variables CSS.
+ */
+
+.card {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    padding: calc(3 * var(--spacing-unit));
+    transition: transform 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card:hover,
+.card:focus-within {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Variantes de Tarjetas --- */
+
+/* .card-interactive: Un estilo para tarjetas que contienen un enlace principal */
+.card-interactive a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* .card-flat: Una tarjeta sin sombra y con un borde más sutil */
+.card-flat {
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+}
+
+.card-flat:hover,
+.card-flat:focus-within {
+    transform: none;
+    box-shadow: none;
+    background-color: rgba(0,0,0,0.02); /* Ligero cambio de fondo en hover */
+}
+
+/*
+ * Permite que las tarjetas se estiren para igualar la altura en una fila de grid
+ * y distribuyan su contenido verticalmente.
+ */
+.procedure-card,
+.info-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Ocupa toda la altura de la celda del grid */
+}
+
+.procedure-card .card-content,
+.info-card .card-content {
+    flex-grow: 1; /* El contenido principal se expande para llenar el espacio */
+}
+
+/* --- Modo Oscuro --- */
+
+.darkmode .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.darkmode .card:hover,
+.darkmode .card:focus-within {
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+
+.darkmode .card-flat:hover,
+.darkmode .card-flat:focus-within {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* Estilos específicos para las tarjetas de trámites con el fondo oscuro solicitado */
+.darkmode .procedure-card,
+.darkmode .info-card {
+    background-color: #23272a;
+    border-radius: var(--border-radius-lg);
+} 

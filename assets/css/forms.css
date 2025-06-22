@@ -1,0 +1,522 @@
+/* ===== ESTILOS DE AUTENTICACIÓN ===== */
+
+/* Panel de Autenticación */
+.auth-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(4px);
+}
+
+.auth-content {
+    background-color: var(--background-color);
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.auth-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.auth-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+
+.auth-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.auth-close:hover {
+    background-color: var(--surface-color);
+    color: var(--text-color);
+}
+
+.auth-form {
+    padding: 1.5rem;
+}
+
+/* Botón de Login en Header */
+.login-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.login-toggle:hover {
+    background: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+.login-toggle .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+/* Panel de Usuario Autenticado */
+.user-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px;
+    height: 100vh;
+    background-color: var(--background-color);
+    border-left: 1px solid var(--border-color);
+    z-index: 999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.user-panel.active {
+    transform: translateX(0);
+}
+
+.user-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--surface-color);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-info .material-symbols-outlined {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+}
+
+.user-info h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+    background: var(--danger-color-darker);
+}
+
+.user-dashboard {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.dashboard-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.metric-card .material-symbols-outlined {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.metric-card h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.metric-card p {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.quick-actions h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.action-buttons .button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+/* ===== VALIDACIONES EN TIEMPO REAL ===== */
+
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    border-width: 2px;
+    box-shadow: 0 0 0 3px rgba(0, 102, 179, 0.1);
+}
+
+/* Estilos para mensajes de error con ícono de advertencia */
+.error-message {
+    display: flex;
+    align-items: center;
+    color: var(--danger-color);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+.error-message:empty {
+    display: none;
+}
+
+.error-message::before {
+    content: "⚠";
+    margin-right: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+/* Estilos para mensajes de éxito */
+.success-message {
+    display: flex;
+    align-items: center;
+    color: var(--success-color);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.success-message::before {
+    content: "✓ ";
+    margin-right: 0.25rem;
+    font-weight: bold;
+}
+
+/* Estilos para campos con error */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+    border-color: var(--danger-color);
+    border-width: 2px;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus,
+.form-group textarea.error:focus {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 2px var(--danger-color-shadow, rgba(220, 53, 69, 0.2));
+}
+
+/* Estilos para campos válidos */
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+    border-color: var(--success-color);
+    border-width: 2px;
+}
+
+/* Modo oscuro para mensajes de error */
+body.darkmode .error-message,
+html.darkmode .error-message {
+    color: #f44336;
+}
+
+body.darkmode .success-message,
+html.darkmode .success-message {
+    color: #4caf50;
+}
+
+body.darkmode .form-group input.error,
+html.darkmode .form-group input.error,
+body.darkmode .form-group select.error,
+html.darkmode .form-group select.error,
+body.darkmode .form-group textarea.error,
+html.darkmode .form-group textarea.error {
+    border-color: #f44336;
+}
+
+body.darkmode .form-group input.valid,
+html.darkmode .form-group input.valid,
+body.darkmode .form-group select.valid,
+html.darkmode .form-group select.valid,
+body.darkmode .form-group textarea.valid,
+html.darkmode .form-group textarea.valid {
+    border-color: #4caf50;
+}
+
+/* ===== VALIDACIONES ESPECÍFICAS ===== */
+
+/* RUT Chileno */
+.rut-valid {
+    border-color: var(--success-color) !important;
+}
+
+.rut-invalid {
+    border-color: var(--danger-color) !important;
+}
+
+/* Patente de Vehículo */
+.patent-valid {
+    border-color: var(--success-color) !important;
+}
+
+.patent-invalid {
+    border-color: var(--danger-color) !important;
+}
+
+/* Email */
+.email-valid {
+    border-color: var(--success-color) !important;
+}
+
+.email-invalid {
+    border-color: var(--danger-color) !important;
+}
+
+/* ===== COMPONENTES MEJORADOS ===== */
+
+/* FAQ con Acordeones */
+/* Los estilos de FAQ se manejan en styles.css para evitar conflictos */
+
+/* Cards Responsivas */
+.contact-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.contact-card {
+    /* Los estilos base ahora están en .card en cards.css */
+    text-align: center;
+}
+
+.contact-card:hover {
+    /* El hover base se maneja en .card */
+}
+
+.contact-card .material-symbols-outlined {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.contact-card h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.contact-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+/* Google Maps Interactivo */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ===== RESPONSIVIDAD ===== */
+
+@media (max-width: 768px) {
+    .auth-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .user-panel {
+        width: 100%;
+        transform: translateX(100%);
+    }
+    
+    .dashboard-metrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .map-container {
+        height: 300px;
+    }
+    
+    .login-toggle .login-text {
+        display: none;
+    }
+    
+    .login-toggle {
+        padding: 0.75rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .dashboard-metrics {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ===== MODO OSCURO ===== */
+
+body.darkmode .auth-content,
+html.darkmode .auth-content {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+}
+
+body.darkmode .user-panel,
+html.darkmode .user-panel {
+    background-color: var(--background-color);
+    border-left-color: var(--border-color);
+}
+
+body.darkmode .user-header,
+html.darkmode .user-header {
+    background-color: var(--surface-color);
+}
+
+body.darkmode .metric-card,
+html.darkmode .metric-card {
+    background-color: var(--surface-color);
+    border-color: var(--border-color);
+}
+
+body.darkmode .contact-card,
+html.darkmode .contact-card {
+    /* Los estilos de modo oscuro ahora se heredan de .darkmode .card */
+}
+
+/* ===== FAQ ===== */
+/* Los estilos de FAQ se manejan en styles.css para evitar conflictos */
+
+/* Cards Responsivas */ 

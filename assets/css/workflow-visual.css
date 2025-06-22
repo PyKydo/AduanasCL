@@ -1,0 +1,490 @@
+/* Estilos específicos para el Workflow Visual */
+
+/* Selector de workflow */
+.workflow-selector {
+    background: var(--surface-color);
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-selector h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.workflow-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.workflow-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--background-color);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.workflow-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.workflow-btn.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.workflow-btn .material-symbols-outlined {
+    font-size: 2rem;
+}
+
+/* Contenedor del workflow */
+.workflow-container {
+    background: var(--surface-color);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.workflow-header h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.workflow-controls {
+    display: flex;
+    gap: 10px;
+}
+
+/* Botones de control */
+.workflow-controls .btn-secondary,
+.logs-header .btn-secondary,
+.config-header .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--surface-color);
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.workflow-controls .btn-secondary:hover,
+.logs-header .btn-secondary:hover,
+.config-header .btn-secondary:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+/* Botones deshabilitados */
+.workflow-controls .btn-secondary:disabled,
+.logs-header .btn-secondary:disabled,
+.config-header .btn-secondary:disabled {
+    background: var(--border-color) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.workflow-controls .btn-secondary:disabled:hover,
+.logs-header .btn-secondary:disabled:hover,
+.config-header .btn-secondary:disabled:hover {
+    background: var(--border-color) !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Pasos del workflow */
+.workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    background: var(--background-color);
+    border: 2px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.workflow-step.pending {
+    border-color: var(--border-color);
+    background: var(--background-color);
+}
+
+.workflow-step.running {
+    border-color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+    animation: pulse 1.5s infinite;
+}
+
+.workflow-step.completed {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+}
+
+.workflow-step.error {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+    flex-shrink: 0;
+}
+
+.workflow-step.completed .step-icon {
+    background: #28a745;
+}
+
+.workflow-step.error .step-icon {
+    background: #dc3545;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.step-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.step-arrow {
+    color: var(--text-muted);
+}
+
+/* Barra de progreso */
+.workflow-progress {
+    margin-top: 30px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Panel de logs */
+.logs-panel {
+    background: var(--surface-color);
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.logs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: var(--primary-color);
+    color: white;
+}
+
+.logs-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.logs-content {
+    padding: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    background: var(--background-color);
+}
+
+.log-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color);
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.log-entry:last-child {
+    border-bottom: none;
+}
+
+.log-timestamp {
+    color: var(--text-muted);
+    margin-right: 10px;
+}
+
+.log-info .log-message { color: var(--text-color); }
+.log-success .log-message { color: #28a745; }
+.log-error .log-message { color: #dc3545; }
+.log-warning .log-message { color: #ffc107; }
+
+/* Panel de configuración */
+.config-panel {
+    background: var(--surface-color);
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: var(--primary-color);
+    color: white;
+}
+
+.config-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.config-content {
+    padding: 30px;
+    background: var(--background-color);
+}
+
+.config-section {
+    margin-bottom: 30px;
+}
+
+.config-section h4 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 5px;
+}
+
+.config-item {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.config-item label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.config-item input[type="number"] {
+    width: 100px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--surface-color);
+    color: var(--text-color);
+}
+
+/* Panel de métricas */
+.metrics-panel {
+    background: var(--surface-color);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.metrics-panel h3 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.metric-card {
+    background: var(--background-color);
+    padding: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid var(--border-color);
+}
+
+.metric-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    color: white;
+}
+
+.metric-content h4 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+.metric-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .workflow-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .workflow-controls {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .workflow-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .workflow-step {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .step-arrow {
+        display: none;
+    }
+}
+
+/* Modo oscuro */
+body.darkmode .workflow-selector,
+html.darkmode .workflow-selector,
+body.darkmode .workflow-container,
+html.darkmode .workflow-container,
+body.darkmode .logs-panel,
+html.darkmode .logs-panel,
+body.darkmode .config-panel,
+html.darkmode .config-panel,
+body.darkmode .metrics-panel,
+html.darkmode .metrics-panel {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+}
+
+body.darkmode .workflow-btn,
+html.darkmode .workflow-btn {
+    background: var(--background-color);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+body.darkmode .workflow-step,
+html.darkmode .workflow-step {
+    background: var(--background-color);
+    border-color: var(--border-color);
+}
+
+body.darkmode .logs-content,
+html.darkmode .logs-content,
+body.darkmode .config-content,
+html.darkmode .config-content {
+    background: var(--background-color);
+}
+
+body.darkmode .metric-card,
+html.darkmode .metric-card {
+    background: var(--background-color);
+    border-color: var(--border-color);
+} 
