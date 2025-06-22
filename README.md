@@ -33,6 +33,50 @@ El sistema fue diseñado considerando:
 
 Se emplearon herramientas de prototipado web y desarrollo front-end, priorizando tecnologías estándar (HTML, CSS, JS) y una estructura modular para facilitar la mantenibilidad y futuras integraciones. El control de versiones se realizó mediante Git, documentando cada cambio relevante en el historial de versiones. La validación de requisitos y funcionalidades se apoyó en un plan de pruebas basado en la normativa ISO/IEC 25000, con casos de prueba y evidencias documentadas para cada módulo.
 
+## Plan de Pruebas
+
+### Alcance
+
+El plan de pruebas cubre los módulos y funcionalidades principales del prototipo de gestión de trámites aduaneros, validando tanto requisitos funcionales como no funcionales. El objetivo es asegurar que el sistema cumple con las expectativas de los usuarios y los estándares de calidad definidos, identificando posibles errores o áreas de mejora antes de una futura implementación real.
+
+### Objetivos
+
+- Verificar que los flujos principales funcionan correctamente para cada tipo de usuario (Viajero, Funcionario, Administrador).
+- Validar la correcta visualización y acceso a módulos según el rol.
+- Comprobar la usabilidad, accesibilidad y respuesta de la interfaz.
+- Asegurar la persistencia y recuperación de datos simulados.
+- Evaluar la robustez ante entradas inválidas y errores comunes.
+
+### Criterios de Aceptación
+
+- Todas las funcionalidades críticas deben estar accesibles y operar según lo especificado.
+- No deben presentarse errores críticos ni bloqueos en los flujos principales.
+- La interfaz debe ser clara, intuitiva y coherente con la identidad visual.
+- Los datos simulados deben persistir correctamente durante la sesión.
+
+### Tipos de Pruebas
+
+- **Pruebas funcionales:** Validan que cada módulo cumple su función (formularios, dashboards, seguimiento, etc.).
+- **Pruebas de roles y permisos:** Verifican el acceso y visibilidad de módulos según el tipo de usuario.
+- **Pruebas de usabilidad:** Evalúan la facilidad de uso y navegación.
+- **Pruebas de validación:** Comprueban la gestión de datos inválidos o incompletos.
+- **Pruebas de compatibilidad visual:** Revisan el funcionamiento en modo oscuro y responsividad.
+
+### Casos de Prueba
+
+| ID   | Módulo                 | Descripción                              | Rol         | Datos de Prueba               | Resultado Esperado                                 | Estado |
+| ---- | ---------------------- | ---------------------------------------- | ----------- | ----------------------------- | -------------------------------------------------- | ------ |
+| CP01 | Inicio de sesión       | Acceso como funcionario de aduanas       | Funcionario | RUT: 12345678-9, pass: 123456 | Acceso exitoso, menú muestra "Dashboard Menores"   |        |
+| CP02 | Inicio de sesión       | Acceso como usuario viajero              | Viajero     | RUT: 11111111-1, pass: 123456 | Acceso exitoso, menú solo muestra opciones básicas |        |
+| CP03 | Formulario de menores  | Envío de formulario con datos completos  | Funcionario | Datos válidos                 | Mensaje de éxito, datos almacenados localmente     |        |
+| CP04 | Formulario de menores  | Envío con datos incompletos              | Funcionario | Campos vacíos                 | Mensaje de error, no se permite enviar             |        |
+| CP05 | Dashboard menores      | Visualización de estadísticas y filtros  | Funcionario | -                             | Estadísticas y filtros visibles y funcionales      |        |
+| CP06 | Seguimiento de trámite | Búsqueda por número de trámite           | Viajero     | Número válido                 | Se muestra el estado del trámite                   |        |
+| CP07 | Modo oscuro/claro      | Cambio de modo visual y persistencia     | Todos       | -                             | El modo seleccionado se mantiene al recargar       |        |
+| CP08 | Responsividad          | Visualización en dispositivo móvil       | Todos       | -                             | Interfaz se adapta correctamente                   |        |
+| CP09 | Control de acceso      | Acceso a módulo restringido sin permisos | Viajero     | -                             | Acceso denegado, mensaje de advertencia            |        |
+| CP10 | Exportar reportes      | Exportar datos a PDF/Excel (simulado)    | Funcionario | -                             | Acción simula descarga o muestra mensaje           |        |
+
 ## Modelo de Calidad Utilizado
 
 Para este prototipo se considera el modelo de calidad **ISO/IEC 25010**, estándar internacional para la evaluación de la calidad de software. Este modelo define características como adecuación funcional, usabilidad, mantenibilidad y portabilidad, que permiten evaluar tanto prototipos como productos finales.
