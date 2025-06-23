@@ -659,8 +659,56 @@
               cursor: pointer;
             "
           >
-            Prueba automática
+            Relleno automático
           </button>
+        </div>
+
+        <!-- Contenedor mejorado para mensajes de éxito -->
+        <div
+          id="mensajeExitoMenores"
+          style="display: none; margin: 1rem auto; max-width: 500px"
+        >
+          <div
+            class="alert alert-success"
+            style="
+              background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+              border: 1px solid #c3e6cb;
+              border-radius: 8px;
+              padding: 1rem 1.5rem;
+              color: #155724;
+              font-weight: 500;
+              text-align: center;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              position: relative;
+              overflow: hidden;
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+              "
+            >
+              <span
+                class="material-symbols-outlined"
+                style="font-size: 1.2rem; color: #28a745"
+                >check_circle</span
+              >
+              <span id="mensajeTextoMenores">Formulario enviado con éxito</span>
+            </div>
+            <div
+              style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #28a745, #20c997);
+              "
+            ></div>
+          </div>
         </div>
 
         <!-- Panel de Resultados -->
@@ -675,13 +723,6 @@
             <!-- Contenido dinámico -->
           </div>
         </div>
-
-        <!-- Lista de Trámites Guardados -->
-        <section class="tramites-guardados">
-          <div id="listaTramites"></div>
-        </section>
-      </div>
-    </main>
 
     <!-- Footer -->
     <footer>
@@ -712,36 +753,8 @@
         // alert(mensaje); // Eliminar esta línea, solo usar mensajes visuales
       }
 
-      function limpiarFormulario() {
-        form.reset();
-      }
-
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        // Validar datos (puedes agregar validaciones adicionales aquí)
-        const datos = Object.fromEntries(new FormData(form).entries());
-        // Generar número de trámite único
-        const numeroTramite = "MEN-" + Date.now().toString().slice(-6);
-        const tramite = {
-          numeroTramite,
-          tipoTramite: "menor",
-          estado: "Enviado",
-          fecha: new Date().toISOString(),
-          datos,
-          observaciones: "",
-        };
-        saveTramiteSubmission(tramite);
-        if (
-          window.moduloMenores &&
-          typeof window.moduloMenores.mostrarMensajeVisual === "function"
-        ) {
-          window.moduloMenores.mostrarMensajeVisual(
-            "Trámite guardado exitosamente.",
-            "success"
-          );
-        }
-        limpiarFormulario();
-      });
+      // El submit del formulario se maneja completamente en el módulo JavaScript
+      // No necesitamos un event listener aquí
 
       btnTest.addEventListener("click", function () {
         // Refuerzo: asegurar que el campo no esté deshabilitado ni readonly
@@ -763,7 +776,7 @@
         pickRandom(form.nacionalidad);
         pickRandom(form.tipoDocumento);
         form.numeroDocumento.value = "1234567";
-        form.rutAcompanante.value = "98765432-1";
+        form.rutAcompanante.value = "98765432-5";
         form.nombresAcompanante.value = "Ana";
         form.apellidosAcompanante.value = "Gómez";
         pickRandom(form.relacionAcompanante);
@@ -796,13 +809,8 @@
           typeof window.validationSystem.validateAllFields === "function"
         ) {
           const esValido = window.validationSystem.validateAllFields(form);
-          // Confirmar que se haya hecho submit exitoso antes de resetear
-          const exito = document.querySelector(".alert-success");
-          if (esValido && exito) {
-            setTimeout(() => {
-              form.reset();
-            }, 2500);
-          }
+          // El formulario solo se debe limpiar después de un submit exitoso, no después del relleno automático
+          // Se eliminó la lógica incorrecta que limpiaba el formulario automáticamente
         }
       });
     </script>

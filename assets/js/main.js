@@ -8,6 +8,8 @@ import {
   validateTramiteField,
   validateContactField,
   validateSeguimientoField,
+  validateLoginRUT,
+  validateLoginPassword,
   formatRUT,
 } from "./modules/form-validation.js";
 import {
@@ -133,17 +135,16 @@ class AuthSystem {
     const password = form.password.value;
     const role = form.role.value;
 
-    // Validaciones básicas
-    if (!this.validateRUT(rut)) {
-      displayFieldError(form.rut, "RUT inválido");
+    // Validaciones
+    const rutValidation = validateLoginRUT(rut);
+    if (!rutValidation.isValid) {
+      displayFieldError(form.rut, rutValidation.message);
       return;
     }
 
-    if (password.length < 6) {
-      displayFieldError(
-        form.password,
-        "La contraseña debe tener al menos 6 caracteres"
-      );
+    const passwordValidation = validateLoginPassword(password);
+    if (!passwordValidation.isValid) {
+      displayFieldError(form.password, passwordValidation.message);
       return;
     }
 
@@ -168,15 +169,6 @@ class AuthSystem {
 
     // Limpiar formulario
     form.reset();
-  }
-
-  validateRUT(rut) {
-    // Validación básica de RUT chileno
-    const rutRegex = /^[0-9]{7,8}-[0-9kK]$/;
-    if (!rutRegex.test(rut)) return false;
-
-    // Aquí se podría agregar validación del dígito verificador
-    return true;
   }
 
   getUserNameByRUT(rut) {
@@ -690,8 +682,14 @@ function showDocumentation() {
 function initFormValidation() {
   const forms = document.querySelectorAll("form");
   forms.forEach((form) => {
-    // Evitar doble listener en formularios ya manejados por AuthSystem
-    if (form.id === "login-form") return;
+    // Evitar doble listener en formularios ya manejados por otros scripts
+    if (
+      form.id === "login-form" ||
+      form.id === "formSAG" ||
+      form.id === "formVehiculo" ||
+      form.id === "formMenor"
+    )
+      return;
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -729,17 +727,101 @@ function initRUTFormatting() {
 function handleFormSubmission(form) {
   if (!window.validationSystem) return;
 
+  // Prevenir doble envío
+  const submitButton = form.querySelector('button[type="submit"]');
+  if (submitButton && submitButton.disabled) {
+    return; // Ya está procesando
+  }
+
   const isValid = window.validationSystem.validateAllFields(form);
 
   if (isValid) {
+    // Deshabilitar botón para prevenir doble envío
+    if (submitButton) {
+      submitButton.disabled = true;
+      const originalText = submitButton.innerHTML;
+      submitButton.innerHTML =
+        '<span class="material-symbols-outlined">hourglass_empty</span> Procesando...';
+
+      // Rehabilitar después de 3 segundos como fallback
+      setTimeout(() => {
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+        }
+      }, 3000);
+    }
+
     if (form.id === "seguimiento-form") {
       const trackingNumber = form.querySelector(
         "#numero-tramite-busqueda"
       ).value;
       displayTrackingResult(trackingNumber);
+
+      // Rehabilitar botón inmediatamente para seguimiento
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = submitButton.innerHTML.replace(
+          "Procesando...",
+          "Buscar"
+        );
+      }
     } else {
-      showSuccessMessage(form, "Formulario enviado con éxito. Gracias.");
+      // Guardar el trámite si es un formulario de trámite
+      if (form.id && form.id !== "login-form" && form.id !== "contact-form") {
+        const formData = new FormData(form);
+
+        // Generar ID único más robusto
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000);
+        const uniqueId = `${timestamp}-${random}`;
+
+        const tramiteData = {
+          numeroTramite: `TR-${timestamp}`, // Formato estándar para todos los trámites
+          tipoTramite: formData.get("tipoTramite") || "general",
+          estado: "Enviado",
+          fecha: new Date().toISOString(),
+          datos: Object.fromEntries(formData.entries()),
+          observaciones: formData.get("observaciones") || "",
+        };
+
+        // Verificar si ya existe un trámite similar (evitar duplicados)
+        const existingTramites = getTramiteSubmissions();
+        const isDuplicate = existingTramites.some(
+          (t) =>
+            t.tipoTramite === tramiteData.tipoTramite &&
+            t.datos &&
+            tramiteData.datos &&
+            JSON.stringify(t.datos) === JSON.stringify(tramiteData.datos)
+        );
+
+        if (!isDuplicate) {
+          // Guardar usando la función importada
+          saveTramiteSubmission(tramiteData);
+          showSuccessMessage(
+            form,
+            `Trámite registrado con éxito. Número: ${tramiteData.numeroTramite}`
+          );
+        } else {
+          showSuccessMessage(
+            form,
+            "Este trámite ya fue registrado anteriormente."
+          );
+        }
+      } else {
+        showSuccessMessage(form, "Formulario enviado con éxito. Gracias.");
+      }
+
+      // Rehabilitar botón después del procesamiento
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.innerHTML = submitButton.innerHTML.replace(
+          "Procesando...",
+          "Enviar"
+        );
+      }
     }
+
     form.reset();
     window.validationSystem.clearAllFieldsOnLoad();
   } else {
@@ -747,6 +829,47 @@ function handleFormSubmission(form) {
     if (firstErrorField) {
       firstErrorField.focus();
     }
+
+    // Rehabilitar botón si hay errores
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.innerHTML = submitButton.innerHTML.replace(
+        "Procesando...",
+        "Enviar"
+      );
+    }
+  }
+}
+
+// Función para mostrar mensaje de éxito
+function showSuccessMessage(form, message) {
+  // Crear elemento de mensaje de éxito
+  const successDiv = document.createElement("div");
+  successDiv.className = "alert alert-success";
+  successDiv.innerHTML = `
+    <span class="material-symbols-outlined">check_circle</span>
+    <p>${message}</p>
+    <button class="alert-dismiss" aria-label="Cerrar mensaje">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  `;
+
+  // Insertar antes del formulario
+  form.parentNode.insertBefore(successDiv, form);
+
+  // Auto-ocultar después de 5 segundos
+  setTimeout(() => {
+    if (successDiv.parentNode) {
+      successDiv.remove();
+    }
+  }, 5000);
+
+  // Permitir cerrar manualmente
+  const dismissBtn = successDiv.querySelector(".alert-dismiss");
+  if (dismissBtn) {
+    dismissBtn.addEventListener("click", () => {
+      successDiv.remove();
+    });
   }
 }
 

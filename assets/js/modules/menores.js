@@ -217,6 +217,9 @@ class ModuloMenores {
   }
 
   async procesarSolicitud() {
+    const submitButton = this.form.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
+
     const formData = new FormData(this.form);
     const datos = Object.fromEntries(formData.entries());
 
@@ -225,6 +228,10 @@ class ModuloMenores {
       return;
     }
 
+    submitButton.disabled = true;
+    submitButton.innerHTML =
+      '<span class="material-symbols-outlined">hourglass_empty</span> Procesando...';
+
     // Simular procesamiento
     this.mostrarCargando();
 
@@ -232,8 +239,22 @@ class ModuloMenores {
       const resultado = await this.simularProcesamiento(datos);
       this.mostrarResultado(resultado);
       this.guardarSolicitud(datos, resultado);
+      this.mostrarMensajeExitoFormulario();
+
+      // Limpiar formulario después de 3 segundos, similar a SAG
+      setTimeout(() => {
+        this.form.reset();
+        this.setupFileUploads(); // Reiniciar previews de archivos
+        submitButton.disabled = false;
+        submitButton.innerHTML =
+          '<span class="material-symbols-outlined">send</span> Procesar Solicitud';
+      }, 3000);
     } catch (error) {
-      this.mostrarError(resultado, error.message);
+      this.mostrarError(null, error.message);
+      this.resultsPanel.style.display = "block";
+      submitButton.disabled = false;
+      submitButton.innerHTML =
+        '<span class="material-symbols-outlined">send</span> Procesar Solicitud';
     }
   }
 
@@ -268,7 +289,73 @@ class ModuloMenores {
   }
 
   mostrarMensajeVisual(mensaje, tipo = "success") {
-    // No hacer nada: se elimina la tarjeta visual de mensaje general.
+    const contenedor = document.getElementById("mensajeExitoMenores");
+    const mensajeTexto = document.getElementById("mensajeTextoMenores");
+
+    if (contenedor && mensajeTexto) {
+      // Actualizar el texto del mensaje
+      mensajeTexto.textContent = mensaje;
+
+      // Cambiar el estilo según el tipo de mensaje
+      const alertDiv = contenedor.querySelector(".alert");
+      if (alertDiv) {
+        if (tipo === "error") {
+          alertDiv.style.background =
+            "linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)";
+          alertDiv.style.borderColor = "#f5c6cb";
+          alertDiv.style.color = "#721c24";
+          const icon = alertDiv.querySelector(".material-symbols-outlined");
+          if (icon) {
+            icon.textContent = "error";
+            icon.style.color = "#dc3545";
+          }
+          const bar = alertDiv.querySelector(
+            'div[style*="background: linear-gradient"]'
+          );
+          if (bar) {
+            bar.style.background = "linear-gradient(90deg, #dc3545, #e74c3c)";
+          }
+        } else {
+          alertDiv.style.background =
+            "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)";
+          alertDiv.style.borderColor = "#c3e6cb";
+          alertDiv.style.color = "#155724";
+          const icon = alertDiv.querySelector(".material-symbols-outlined");
+          if (icon) {
+            icon.textContent = "check_circle";
+            icon.style.color = "#28a745";
+          }
+          const bar = alertDiv.querySelector(
+            'div[style*="background: linear-gradient"]'
+          );
+          if (bar) {
+            bar.style.background = "linear-gradient(90deg, #28a745, #20c997)";
+          }
+        }
+      }
+
+      // Mostrar el contenedor con animación
+      contenedor.style.display = "block";
+      contenedor.style.opacity = "0";
+      contenedor.style.transform = "translateY(-10px)";
+
+      // Animación de entrada
+      setTimeout(() => {
+        contenedor.style.transition = "all 0.3s ease";
+        contenedor.style.opacity = "1";
+        contenedor.style.transform = "translateY(0)";
+      }, 10);
+
+      // Ocultar después de 4 segundos con animación de salida
+      setTimeout(() => {
+        contenedor.style.opacity = "0";
+        contenedor.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          contenedor.style.display = "none";
+          contenedor.style.transition = "none";
+        }, 300);
+      }, 4000);
+    }
   }
 
   async simularProcesamiento(datos) {
@@ -297,8 +384,9 @@ class ModuloMenores {
       );
     }
 
-    // Generar número de solicitud
-    const numeroSolicitud = "MEN-" + Date.now().toString().slice(-6);
+    // Generar número de solicitud con formato estándar
+    const timestamp = Date.now();
+    const numeroSolicitud = `TR-${timestamp}`;
 
     return {
       estado: "aprobado",
@@ -413,7 +501,6 @@ class ModuloMenores {
 
   guardarSolicitud(datos, resultado) {
     const solicitud = {
-      id: Date.now(),
       datos: datos,
       resultado: resultado,
       fecha: new Date().toISOString(),
@@ -426,12 +513,10 @@ class ModuloMenores {
       JSON.stringify(this.solicitudes)
     );
 
-    // Guardar en el storage centralizado para seguimiento
+    // Guardar en el storage centralizado para seguimiento con formato estándar
     if (typeof saveTramiteSubmission === "function") {
       saveTramiteSubmission({
-        numeroTramite:
-          resultado.numeroSolicitud ||
-          (solicitud.id ? "MEN-" + solicitud.id.toString().slice(-6) : ""),
+        numeroTramite: resultado.numeroSolicitud,
         tipoTramite: "menor",
         estado: resultado.estado || "procesado",
         fecha: solicitud.fecha,
@@ -480,6 +565,38 @@ class ModuloMenores {
   revisarFormulario() {
     this.resultsPanel.style.display = "none";
     this.form.scrollIntoView({ behavior: "smooth" });
+  }
+
+  mostrarMensajeExitoFormulario() {
+    const contenedor = document.getElementById("mensajeExitoMenores");
+    const mensajeTexto = document.getElementById("mensajeTextoMenores");
+
+    if (contenedor && mensajeTexto) {
+      // Actualizar el texto del mensaje
+      mensajeTexto.textContent = "Formulario enviado con éxito";
+
+      // Mostrar el contenedor con animación
+      contenedor.style.display = "block";
+      contenedor.style.opacity = "0";
+      contenedor.style.transform = "translateY(-10px)";
+
+      // Animación de entrada
+      setTimeout(() => {
+        contenedor.style.transition = "all 0.3s ease";
+        contenedor.style.opacity = "1";
+        contenedor.style.transform = "translateY(0)";
+      }, 10);
+
+      // Ocultar después de 4 segundos con animación de salida
+      setTimeout(() => {
+        contenedor.style.opacity = "0";
+        contenedor.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          contenedor.style.display = "none";
+          contenedor.style.transition = "none";
+        }, 300);
+      }, 4000);
+    }
   }
 }
 

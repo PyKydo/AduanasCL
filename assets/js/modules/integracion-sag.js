@@ -270,9 +270,27 @@ class IntegracionSAG {
     return true;
   }
 
-  mostrarError(element, mensaje) {
-    element.textContent = mensaje;
-    element.className = "validation-message";
+  mostrarError(resultado, mensaje) {
+    this.resultsContent.innerHTML = `
+            <div class="validation-status error">
+                <span class="material-symbols-outlined">error</span>
+                <div>
+                    <strong>Error en el Procesamiento</strong>
+                    <p>${mensaje}</p>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="integracionSAG.resultsPanel.style.display='none'">
+                    <span class="material-symbols-outlined">close</span>
+                    Cerrar
+                </button>
+                <button class="btn-primary" onclick="integracionSAG.revisarFormulario()">
+                    <span class="material-symbols-outlined">edit</span>
+                    Revisar Formulario
+                </button>
+            </div>
+        `;
   }
 
   mostrarExito(element, mensaje) {
@@ -295,39 +313,59 @@ class IntegracionSAG {
   }
 
   async procesarDeclaracion() {
-    const formData = new FormData(this.form);
-    const datos = Object.fromEntries(formData.entries());
+    const submitButton = this.form.querySelector('button[type="submit"]');
+    if (submitButton.disabled) return;
 
-    // Validaciones adicionales
-    if (!this.validarFormularioCompleto(datos)) {
+    const datos = Object.fromEntries(new FormData(this.form).entries());
+    const esValido = this.validarFormularioCompleto(datos);
+
+    if (!esValido) {
+      this.mostrarMensajeVisual(
+        "Por favor, corrija los errores del formulario.",
+        "error"
+      );
       return;
     }
 
-    // Simular procesamiento
-    this.mostrarCargando();
+    submitButton.disabled = true;
+    submitButton.innerHTML =
+      '<span class="material-symbols-outlined">hourglass_empty</span> Procesando...';
 
     try {
       const resultado = await this.simularProcesamientoSAG(datos);
+      this.guardarSolicitud(datos, resultado);
       this.mostrarResultado(resultado);
-      this.guardarSolicitud(datos, resultado); // Actualizado a guardarSolicitud
+      this.resultsPanel.style.display = "block";
+
+      this.mostrarMensajeVisual(
+        `Declaración procesada con éxito. Número de trámite: ${resultado.numeroSolicitud}`,
+        "success"
+      );
+
+      setTimeout(() => {
+        this.form.reset();
+        this.setupFileUploads(); // Reiniciar previews de archivos
+        submitButton.disabled = false;
+        submitButton.innerHTML =
+          '<span class="material-symbols-outlined">send</span> Procesar Declaración SAG';
+      }, 3000);
     } catch (error) {
-      this.mostrarError(resultado, error.message);
+      this.mostrarError(null, error.message);
+      this.resultsPanel.style.display = "block";
+      submitButton.disabled = false;
+      submitButton.innerHTML =
+        '<span class="material-symbols-outlined">send</span> Procesar Declaración SAG';
     }
   }
 
   async consultarEstado() {
-    const formData = new FormData(this.form);
-    const datos = Object.fromEntries(formData.entries());
-
-    if (!datos.rutDeclarante) {
-      alert("Debe ingresar el RUT del declarante para consultar");
-      return;
-    }
+    const numeroTramite = prompt("Ingrese el número de trámite a consultar:");
+    if (!numeroTramite) return;
 
     this.mostrarCargandoConsulta();
 
     try {
-      const resultado = await this.simularConsultaSAG(datos);
+      const resultado = await this.simularConsultaSAG({ numeroTramite });
       this.mostrarResultadoConsulta(resultado);
     } catch (error) {
       this.mostrarErrorConsulta(error.message);
@@ -400,8 +438,9 @@ class IntegracionSAG {
       );
     }
 
-    // Generar número de declaración
-    const numeroDeclaracion = "SAG-" + Date.now().toString().slice(-6);
+    // Generar número de declaración con formato estándar
+    const timestamp = Date.now();
+    const numeroDeclaracion = `TR-${timestamp}`;
 
     return {
       estado: "aprobado",
@@ -484,8 +523,7 @@ class IntegracionSAG {
     this.resultsContent.innerHTML = `
             <div class="loading-container">
                 <div class="spinner"></div>
-                <p>Procesando declaración SAG...</p>
-                <small>Conectando con el Servicio Agrícola y Ganadero</small>
+                <p>Procesando solicitud...</p>
             </div>
         `;
     this.resultsPanel.style.display = "block";
@@ -503,29 +541,12 @@ class IntegracionSAG {
   }
 
   mostrarResultado(resultado) {
-    // El campo fechaVencimiento es específico de SAG y no está en el template estándar.
-    // Se podría agregar aquí si es necesario, o manejarlo de otra forma si el template es estricto.
-    // Por ahora, lo omitiré para adherirme al template proporcionado.
-    /*
-        let fechaVencimientoHTML = "";
-        if (resultado.fechaVencimiento) {
-            fechaVencimientoHTML = `
-            <div class="detail-item">
-                <strong>Fecha de Vencimiento:</strong>
-                <span>${resultado.fechaVencimiento}</span>
-            </div>
-            `;
-        }
-        */
-
     this.resultsContent.innerHTML = `
             <div class="validation-status success">
                 <span class="material-symbols-outlined">check_circle</span>
                 <div>
                     <strong>Solicitud Procesada Exitosamente</strong>
-                    <p>Número de solicitud: ${
-                      resultado.numeroSolicitud || resultado.numeroDeclaracion
-                    }</p>
+                    <p>Número de solicitud: ${resultado.numeroSolicitud}</p>
                 </div>
             </div>
             
@@ -548,7 +569,6 @@ class IntegracionSAG {
                         <strong>Observaciones:</strong>
                         <span>${resultado.observaciones}</span>
                     </div>
-                    {/* Aquí podría ir fechaVencimientoHTML si se decide incluirlo */}
                 </div>
             </div>
             
@@ -625,30 +645,6 @@ class IntegracionSAG {
         `;
   }
 
-  mostrarError(resultado, mensaje) {
-    // El parámetro resultado no se usa en la plantilla original.
-    this.resultsContent.innerHTML = `
-            <div class="validation-status error">
-                <span class="material-symbols-outlined">error</span>
-                <div>
-                    <strong>Error en el Procesamiento</strong>
-                    <p>${mensaje}</p>
-                </div>
-            </div>
-            
-            <div class="action-buttons">
-                <button class="btn-secondary" onclick="integracionSAG.resultsPanel.style.display='none'">
-                    <span class="material-symbols-outlined">close</span>
-                    Cerrar
-                </button>
-                <button class="btn-primary" onclick="integracionSAG.revisarFormulario()">
-                    <span class="material-symbols-outlined">edit</span>
-                    Revisar Formulario
-                </button>
-            </div>
-        `;
-  }
-
   mostrarErrorConsulta(mensaje) {
     this.queryContent.innerHTML = `
             <div class="validation-status error">
@@ -672,7 +668,6 @@ class IntegracionSAG {
     // Renombrada de guardarDeclaracion a guardarSolicitud
     const solicitud = {
       // Cambiado de declaracion a solicitud
-      id: Date.now(),
       datos: datos,
       resultado: resultado,
       fecha: new Date().toISOString(),
@@ -682,12 +677,10 @@ class IntegracionSAG {
     this.declaraciones.push(solicitud); // Sigue usando this.declaraciones como array interno
     localStorage.setItem("solicitudesSAG", JSON.stringify(this.declaraciones)); // Clave de localStorage actualizada
 
-    // Guardar en el storage centralizado para seguimiento
-    if (typeof saveTramiteSubmission === "function") {
-      saveTramiteSubmission({
-        numeroTramite:
-          resultado.numeroSolicitud ||
-          (solicitud.id ? "SAG-" + solicitud.id.toString().slice(-6) : ""),
+    // Guardar en el storage centralizado para seguimiento con formato estándar
+    if (typeof window.saveTramiteSubmission === "function") {
+      window.saveTramiteSubmission({
+        numeroTramite: resultado.numeroSolicitud,
         tipoTramite: "sag",
         estado: resultado.estado || "procesado",
         fecha: solicitud.fecha,
@@ -711,7 +704,6 @@ class IntegracionSAG {
             `;
       el.style.color = "var(--text-secondary)";
     });
-    this.updateFormForProcess();
   }
 
   guardarBorrador() {
@@ -723,7 +715,6 @@ class IntegracionSAG {
       JSON.stringify({
         datos: datos,
         fecha: new Date().toISOString(),
-        proceso: this.currentProcess,
       })
     );
 
@@ -733,7 +724,6 @@ class IntegracionSAG {
   nuevaDeclaracion() {
     this.limpiarFormulario();
     this.resultsPanel.style.display = "none";
-    this.queryPanel.style.display = "none";
   }
 
   revisarFormulario() {
@@ -751,7 +741,105 @@ class IntegracionSAG {
   }
 
   mostrarMensajeVisual(mensaje, tipo = "success") {
-    // No hacer nada: se elimina la tarjeta visual de mensaje general.
+    const contenedor = document.getElementById("mensajeExitoSAG");
+    const mensajeTexto = document.getElementById("mensajeTextoSAG");
+
+    if (contenedor && mensajeTexto) {
+      // Actualizar el texto del mensaje
+      mensajeTexto.textContent = mensaje;
+
+      // Cambiar el estilo según el tipo de mensaje
+      const alertDiv = contenedor.querySelector(".alert");
+      if (alertDiv) {
+        if (tipo === "error") {
+          alertDiv.style.background =
+            "linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%)";
+          alertDiv.style.borderColor = "#f5c6cb";
+          alertDiv.style.color = "#721c24";
+          const icon = alertDiv.querySelector(".material-symbols-outlined");
+          if (icon) {
+            icon.textContent = "error";
+            icon.style.color = "#dc3545";
+          }
+          const bar = alertDiv.querySelector(
+            'div[style*="background: linear-gradient"]'
+          );
+          if (bar) {
+            bar.style.background = "linear-gradient(90deg, #dc3545, #e74c3c)";
+          }
+        } else {
+          alertDiv.style.background =
+            "linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%)";
+          alertDiv.style.borderColor = "#c3e6cb";
+          alertDiv.style.color = "#155724";
+          const icon = alertDiv.querySelector(".material-symbols-outlined");
+          if (icon) {
+            icon.textContent = "check_circle";
+            icon.style.color = "#28a745";
+          }
+          const bar = alertDiv.querySelector(
+            'div[style*="background: linear-gradient"]'
+          );
+          if (bar) {
+            bar.style.background = "linear-gradient(90deg, #28a745, #20c997)";
+          }
+        }
+      }
+
+      // Mostrar el contenedor con animación
+      contenedor.style.display = "block";
+      contenedor.style.opacity = "0";
+      contenedor.style.transform = "translateY(-10px)";
+
+      // Animación de entrada
+      setTimeout(() => {
+        contenedor.style.transition = "all 0.3s ease";
+        contenedor.style.opacity = "1";
+        contenedor.style.transform = "translateY(0)";
+      }, 10);
+
+      // Ocultar después de 4 segundos con animación de salida
+      setTimeout(() => {
+        contenedor.style.opacity = "0";
+        contenedor.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          contenedor.style.display = "none";
+          contenedor.style.transition = "none";
+        }, 300);
+      }, 4000);
+    }
+  }
+
+  mostrarMensajeExitoFormulario() {
+    const contenedor = document.getElementById("mensajeExitoSAG");
+    const mensajeTexto = document.getElementById("mensajeTextoSAG");
+
+    if (contenedor && mensajeTexto) {
+      // Actualizar el texto del mensaje
+      mensajeTexto.textContent = "Formulario enviado con éxito";
+
+      // Mostrar el contenedor con animación
+      contenedor.style.display = "block";
+      contenedor.style.opacity = "0";
+      contenedor.style.transform = "translateY(-10px)";
+
+      // Animación de entrada
+      setTimeout(() => {
+        contenedor.style.transition = "all 0.3s ease";
+        contenedor.style.opacity = "1";
+        contenedor.style.transform = "translateY(0)";
+      }, 10);
+
+      // Ocultar después de 4 segundos con animación de salida
+      setTimeout(() => {
+        contenedor.style.opacity = "0";
+        contenedor.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          contenedor.style.display = "none";
+          contenedor.style.transition = "none";
+        }, 300);
+      }, 4000);
+    }
   }
 }
 

@@ -1,216 +1,236 @@
 // Dashboard de Gestión de Menores
 class DashboardMenores {
-    constructor() {
-        this.solicitudes = [];
-        this.solicitudesFiltradas = [];
-        this.currentPage = 1;
-        this.itemsPerPage = 10;
-        this.filters = {
-            search: '',
-            estado: '',
-            proceso: '',
-            fecha: ''
-        };
-        
-        this.init();
-    }
+  constructor() {
+    this.solicitudes = [];
+    this.solicitudesFiltradas = [];
+    this.currentPage = 1;
+    this.itemsPerPage = 10;
+    this.filters = {
+      search: "",
+      estado: "",
+      proceso: "",
+      fecha: "",
+    };
 
-    init() {
-        this.cargarSolicitudes();
-        this.setupEventListeners();
-        this.actualizarEstadisticas();
+    this.init();
+  }
+
+  init() {
+    this.cargarSolicitudes();
+    this.setupEventListeners();
+    this.actualizarEstadisticas();
+    this.renderizarTabla();
+    this.inicializarGraficos();
+  }
+
+  setupEventListeners() {
+    // Búsqueda
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      this.filters.search = e.target.value;
+      this.aplicarFiltros();
+    });
+
+    // Filtros
+    document.getElementById("filterEstado").addEventListener("change", (e) => {
+      this.filters.estado = e.target.value;
+      this.aplicarFiltros();
+    });
+
+    document.getElementById("filterProceso").addEventListener("change", (e) => {
+      this.filters.proceso = e.target.value;
+      this.aplicarFiltros();
+    });
+
+    document.getElementById("filterFecha").addEventListener("change", (e) => {
+      this.filters.fecha = e.target.value;
+      this.aplicarFiltros();
+    });
+
+    // Paginación
+    document.getElementById("btnPrev").addEventListener("click", () => {
+      if (this.currentPage > 1) {
+        this.currentPage--;
         this.renderizarTabla();
-        this.inicializarGraficos();
+      }
+    });
+
+    document.getElementById("btnNext").addEventListener("click", () => {
+      const totalPages = Math.ceil(
+        this.solicitudesFiltradas.length / this.itemsPerPage
+      );
+      if (this.currentPage < totalPages) {
+        this.currentPage++;
+        this.renderizarTabla();
+      }
+    });
+
+    // Exportar
+    document.getElementById("btnExportar").addEventListener("click", () => {
+      this.exportarDatos();
+    });
+
+    // Modal
+    document.getElementById("closeModal").addEventListener("click", () => {
+      document.getElementById("detallesModal").style.display = "none";
+    });
+  }
+
+  cargarSolicitudes() {
+    this.solicitudes = JSON.parse(
+      localStorage.getItem("solicitudesMenores") || "[]"
+    );
+
+    // Si no hay datos, generar algunos de ejemplo
+    if (this.solicitudes.length === 0) {
+      this.generarDatosEjemplo();
     }
 
-    setupEventListeners() {
-        // Búsqueda
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            this.filters.search = e.target.value;
-            this.aplicarFiltros();
-        });
+    this.solicitudesFiltradas = [...this.solicitudes];
+  }
 
-        // Filtros
-        document.getElementById('filterEstado').addEventListener('change', (e) => {
-            this.filters.estado = e.target.value;
-            this.aplicarFiltros();
-        });
+  generarDatosEjemplo() {
+    const datosEjemplo = [
+      {
+        id: 1,
+        datos: {
+          rutMenor: "12345678-9",
+          nombresMenor: "Juan Carlos",
+          apellidosMenor: "González Silva",
+          fechaNacimiento: "2010-05-15",
+          nacionalidad: "chilena",
+          tipoAutorizacion: "notarial",
+        },
+        resultado: {
+          estado: "aprobado",
+          numeroSolicitud: "TR-1705123456789",
+          fechaProcesamiento: "2024-01-15 10:30:00",
+        },
+        fecha: "2024-01-15T10:30:00.000Z",
+        proceso: "entrada",
+      },
+      {
+        id: 2,
+        datos: {
+          rutMenor: "98765432-1",
+          nombresMenor: "María Fernanda",
+          apellidosMenor: "Rodríguez López",
+          fechaNacimiento: "2008-12-03",
+          nacionalidad: "chilena",
+          tipoAutorizacion: "padre_no_acompanante",
+        },
+        resultado: {
+          estado: "pendiente",
+          numeroSolicitud: "TR-1705123456790",
+          fechaProcesamiento: "2024-01-16 14:20:00",
+        },
+        fecha: "2024-01-16T14:20:00.000Z",
+        proceso: "salida",
+      },
+      {
+        id: 3,
+        datos: {
+          rutMenor: "45678912-3",
+          nombresMenor: "Diego Alejandro",
+          apellidosMenor: "Martínez Pérez",
+          fechaNacimiento: "2009-08-22",
+          nacionalidad: "argentina",
+          tipoAutorizacion: "adopcion",
+        },
+        resultado: {
+          estado: "rechazado",
+          numeroSolicitud: "TR-1705123456791",
+          fechaProcesamiento: "2024-01-17 09:15:00",
+        },
+        fecha: "2024-01-17T09:15:00.000Z",
+        proceso: "autorizacion",
+      },
+    ];
 
-        document.getElementById('filterProceso').addEventListener('change', (e) => {
-            this.filters.proceso = e.target.value;
-            this.aplicarFiltros();
-        });
+    this.solicitudes = datosEjemplo;
+    localStorage.setItem("solicitudesMenores", JSON.stringify(datosEjemplo));
+  }
 
-        document.getElementById('filterFecha').addEventListener('change', (e) => {
-            this.filters.fecha = e.target.value;
-            this.aplicarFiltros();
-        });
+  aplicarFiltros() {
+    this.solicitudesFiltradas = this.solicitudes.filter((solicitud) => {
+      // Filtro de búsqueda
+      if (this.filters.search) {
+        const searchTerm = this.filters.search.toLowerCase();
+        const searchFields = [
+          solicitud.datos.rutMenor,
+          solicitud.datos.nombresMenor,
+          solicitud.datos.apellidosMenor,
+          solicitud.resultado.numeroSolicitud,
+        ]
+          .join(" ")
+          .toLowerCase();
 
-        // Paginación
-        document.getElementById('btnPrev').addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-                this.renderizarTabla();
-            }
-        });
-
-        document.getElementById('btnNext').addEventListener('click', () => {
-            const totalPages = Math.ceil(this.solicitudesFiltradas.length / this.itemsPerPage);
-            if (this.currentPage < totalPages) {
-                this.currentPage++;
-                this.renderizarTabla();
-            }
-        });
-
-        // Exportar
-        document.getElementById('btnExportar').addEventListener('click', () => {
-            this.exportarDatos();
-        });
-
-        // Modal
-        document.getElementById('closeModal').addEventListener('click', () => {
-            document.getElementById('detallesModal').style.display = 'none';
-        });
-    }
-
-    cargarSolicitudes() {
-        this.solicitudes = JSON.parse(localStorage.getItem('solicitudesMenores') || '[]');
-        
-        // Si no hay datos, generar algunos de ejemplo
-        if (this.solicitudes.length === 0) {
-            this.generarDatosEjemplo();
+        if (!searchFields.includes(searchTerm)) {
+          return false;
         }
-        
-        this.solicitudesFiltradas = [...this.solicitudes];
-    }
+      }
 
-    generarDatosEjemplo() {
-        const datosEjemplo = [
-            {
-                id: 1,
-                datos: {
-                    rutMenor: '12345678-9',
-                    nombresMenor: 'Juan Carlos',
-                    apellidosMenor: 'González Silva',
-                    fechaNacimiento: '2010-05-15',
-                    nacionalidad: 'chilena',
-                    tipoAutorizacion: 'notarial'
-                },
-                resultado: {
-                    estado: 'aprobado',
-                    numeroSolicitud: 'MEN-001234',
-                    fechaProcesamiento: '2024-01-15 10:30:00'
-                },
-                fecha: '2024-01-15T10:30:00.000Z',
-                proceso: 'entrada'
-            },
-            {
-                id: 2,
-                datos: {
-                    rutMenor: '98765432-1',
-                    nombresMenor: 'María Fernanda',
-                    apellidosMenor: 'Rodríguez López',
-                    fechaNacimiento: '2008-12-03',
-                    nacionalidad: 'chilena',
-                    tipoAutorizacion: 'padre_no_acompanante'
-                },
-                resultado: {
-                    estado: 'pendiente',
-                    numeroSolicitud: 'MEN-001235',
-                    fechaProcesamiento: '2024-01-16 14:20:00'
-                },
-                fecha: '2024-01-16T14:20:00.000Z',
-                proceso: 'salida'
-            },
-            {
-                id: 3,
-                datos: {
-                    rutMenor: '45678912-3',
-                    nombresMenor: 'Diego Alejandro',
-                    apellidosMenor: 'Martínez Pérez',
-                    fechaNacimiento: '2009-08-22',
-                    nacionalidad: 'argentina',
-                    tipoAutorizacion: 'adopcion'
-                },
-                resultado: {
-                    estado: 'rechazado',
-                    numeroSolicitud: 'MEN-001236',
-                    fechaProcesamiento: '2024-01-17 09:15:00'
-                },
-                fecha: '2024-01-17T09:15:00.000Z',
-                proceso: 'autorizacion'
-            }
-        ];
+      // Filtro de estado
+      if (
+        this.filters.estado &&
+        solicitud.resultado.estado !== this.filters.estado
+      ) {
+        return false;
+      }
 
-        this.solicitudes = datosEjemplo;
-        localStorage.setItem('solicitudesMenores', JSON.stringify(datosEjemplo));
-    }
+      // Filtro de proceso
+      if (this.filters.proceso && solicitud.proceso !== this.filters.proceso) {
+        return false;
+      }
 
-    aplicarFiltros() {
-        this.solicitudesFiltradas = this.solicitudes.filter(solicitud => {
-            // Filtro de búsqueda
-            if (this.filters.search) {
-                const searchTerm = this.filters.search.toLowerCase();
-                const searchFields = [
-                    solicitud.datos.rutMenor,
-                    solicitud.datos.nombresMenor,
-                    solicitud.datos.apellidosMenor,
-                    solicitud.resultado.numeroSolicitud
-                ].join(' ').toLowerCase();
-                
-                if (!searchFields.includes(searchTerm)) {
-                    return false;
-                }
-            }
+      // Filtro de fecha
+      if (this.filters.fecha) {
+        const solicitudFecha = new Date(solicitud.fecha)
+          .toISOString()
+          .split("T")[0];
+        if (solicitudFecha !== this.filters.fecha) {
+          return false;
+        }
+      }
 
-            // Filtro de estado
-            if (this.filters.estado && solicitud.resultado.estado !== this.filters.estado) {
-                return false;
-            }
+      return true;
+    });
 
-            // Filtro de proceso
-            if (this.filters.proceso && solicitud.proceso !== this.filters.proceso) {
-                return false;
-            }
+    this.currentPage = 1;
+    this.actualizarEstadisticas();
+    this.renderizarTabla();
+  }
 
-            // Filtro de fecha
-            if (this.filters.fecha) {
-                const solicitudFecha = new Date(solicitud.fecha).toISOString().split('T')[0];
-                if (solicitudFecha !== this.filters.fecha) {
-                    return false;
-                }
-            }
+  actualizarEstadisticas() {
+    const total = this.solicitudes.length;
+    const aprobadas = this.solicitudes.filter(
+      (s) => s.resultado.estado === "aprobado"
+    ).length;
+    const pendientes = this.solicitudes.filter(
+      (s) => s.resultado.estado === "pendiente"
+    ).length;
+    const rechazadas = this.solicitudes.filter(
+      (s) => s.resultado.estado === "rechazado"
+    ).length;
 
-            return true;
-        });
+    document.getElementById("totalSolicitudes").textContent = total;
+    document.getElementById("solicitudesAprobadas").textContent = aprobadas;
+    document.getElementById("solicitudesPendientes").textContent = pendientes;
+    document.getElementById("solicitudesRechazadas").textContent = rechazadas;
+  }
 
-        this.currentPage = 1;
-        this.actualizarEstadisticas();
-        this.renderizarTabla();
-    }
+  renderizarTabla() {
+    const tbody = document.getElementById("solicitudesTableBody");
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    const solicitudesPagina = this.solicitudesFiltradas.slice(
+      startIndex,
+      endIndex
+    );
 
-    actualizarEstadisticas() {
-        const total = this.solicitudes.length;
-        const aprobadas = this.solicitudes.filter(s => s.resultado.estado === 'aprobado').length;
-        const pendientes = this.solicitudes.filter(s => s.resultado.estado === 'pendiente').length;
-        const rechazadas = this.solicitudes.filter(s => s.resultado.estado === 'rechazado').length;
+    tbody.innerHTML = "";
 
-        document.getElementById('totalSolicitudes').textContent = total;
-        document.getElementById('solicitudesAprobadas').textContent = aprobadas;
-        document.getElementById('solicitudesPendientes').textContent = pendientes;
-        document.getElementById('solicitudesRechazadas').textContent = rechazadas;
-    }
-
-    renderizarTabla() {
-        const tbody = document.getElementById('solicitudesTableBody');
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        const endIndex = startIndex + this.itemsPerPage;
-        const solicitudesPagina = this.solicitudesFiltradas.slice(startIndex, endIndex);
-
-        tbody.innerHTML = '';
-
-        if (solicitudesPagina.length === 0) {
-            tbody.innerHTML = `
+    if (solicitudesPagina.length === 0) {
+      tbody.innerHTML = `
                 <tr>
                     <td colspan="7" class="no-data">
                         <div class="no-data-content">
@@ -220,24 +240,26 @@ class DashboardMenores {
                     </td>
                 </tr>
             `;
-        } else {
-            solicitudesPagina.forEach(solicitud => {
-                const row = this.crearFilaSolicitud(solicitud);
-                tbody.appendChild(row);
-            });
-        }
-
-        this.actualizarPaginacion();
+    } else {
+      solicitudesPagina.forEach((solicitud) => {
+        const row = this.crearFilaSolicitud(solicitud);
+        tbody.appendChild(row);
+      });
     }
 
-    crearFilaSolicitud(solicitud) {
-        const row = document.createElement('tr');
-        const fecha = new Date(solicitud.fecha).toLocaleDateString('es-CL');
-        const nombreCompleto = `${solicitud.datos.nombresMenor} ${solicitud.datos.apellidosMenor}`;
-        
-        row.innerHTML = `
+    this.actualizarPaginacion();
+  }
+
+  crearFilaSolicitud(solicitud) {
+    const row = document.createElement("tr");
+    const fecha = new Date(solicitud.fecha).toLocaleDateString("es-CL");
+    const nombreCompleto = `${solicitud.datos.nombresMenor} ${solicitud.datos.apellidosMenor}`;
+
+    row.innerHTML = `
             <td>
-                <span class="numero-solicitud">${solicitud.resultado.numeroSolicitud}</span>
+                <span class="numero-solicitud">${
+                  solicitud.resultado.numeroSolicitud
+                }</span>
             </td>
             <td>${solicitud.datos.rutMenor}</td>
             <td>${nombreCompleto}</td>
@@ -254,59 +276,73 @@ class DashboardMenores {
             </td>
             <td>
                 <div class="action-buttons">
-                    <button class="btn-action" onclick="dashboardMenores.verDetalles(${solicitud.id})" title="Ver detalles">
+                    <button class="btn-action" onclick="dashboardMenores.verDetalles(${
+                      solicitud.id
+                    })" title="Ver detalles">
                         <span class="material-symbols-outlined">visibility</span>
                     </button>
-                    <button class="btn-action" onclick="dashboardMenores.editarSolicitud(${solicitud.id})" title="Editar">
+                    <button class="btn-action" onclick="dashboardMenores.editarSolicitud(${
+                      solicitud.id
+                    })" title="Editar">
                         <span class="material-symbols-outlined">edit</span>
                     </button>
-                    <button class="btn-action" onclick="dashboardMenores.eliminarSolicitud(${solicitud.id})" title="Eliminar">
+                    <button class="btn-action" onclick="dashboardMenores.eliminarSolicitud(${
+                      solicitud.id
+                    })" title="Eliminar">
                         <span class="material-symbols-outlined">delete</span>
                     </button>
                 </div>
             </td>
         `;
 
-        return row;
-    }
+    return row;
+  }
 
-    actualizarPaginacion() {
-        const totalItems = this.solicitudesFiltradas.length;
-        const totalPages = Math.ceil(totalItems / this.itemsPerPage);
-        const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
-        const endItem = Math.min(this.currentPage * this.itemsPerPage, totalItems);
+  actualizarPaginacion() {
+    const totalItems = this.solicitudesFiltradas.length;
+    const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+    const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const endItem = Math.min(this.currentPage * this.itemsPerPage, totalItems);
 
-        document.getElementById('paginationInfo').textContent = 
-            `Mostrando ${startItem} a ${endItem} de ${totalItems} resultados`;
-        
-        document.getElementById('currentPage').textContent = this.currentPage;
-        document.getElementById('totalPages').textContent = totalPages;
+    document.getElementById(
+      "paginationInfo"
+    ).textContent = `Mostrando ${startItem} a ${endItem} de ${totalItems} resultados`;
 
-        document.getElementById('btnPrev').disabled = this.currentPage <= 1;
-        document.getElementById('btnNext').disabled = this.currentPage >= totalPages;
-    }
+    document.getElementById("currentPage").textContent = this.currentPage;
+    document.getElementById("totalPages").textContent = totalPages;
 
-    verDetalles(id) {
-        const solicitud = this.solicitudes.find(s => s.id === id);
-        if (!solicitud) return;
+    document.getElementById("btnPrev").disabled = this.currentPage <= 1;
+    document.getElementById("btnNext").disabled =
+      this.currentPage >= totalPages;
+  }
 
-        const modalBody = document.getElementById('modalBody');
-        modalBody.innerHTML = this.generarHTMLDetalles(solicitud);
-        
-        document.getElementById('detallesModal').style.display = 'flex';
-    }
+  verDetalles(id) {
+    const solicitud = this.solicitudes.find((s) => s.id === id);
+    if (!solicitud) return;
 
-    generarHTMLDetalles(solicitud) {
-        const fecha = new Date(solicitud.fecha).toLocaleString('es-CL');
-        const nombreCompleto = `${solicitud.datos.nombresMenor} ${solicitud.datos.apellidosMenor}`;
-        const nombreAcompanante = `${solicitud.datos.nombresAcompanante || 'N/A'} ${solicitud.datos.apellidosAcompanante || ''}`;
+    const modalBody = document.getElementById("modalBody");
+    modalBody.innerHTML = this.generarHTMLDetalles(solicitud);
 
-        return `
+    document.getElementById("detallesModal").style.display = "flex";
+  }
+
+  generarHTMLDetalles(solicitud) {
+    const fecha = new Date(solicitud.fecha).toLocaleString("es-CL");
+    const nombreCompleto = `${solicitud.datos.nombresMenor} ${solicitud.datos.apellidosMenor}`;
+    const nombreAcompanante = `${solicitud.datos.nombresAcompanante || "N/A"} ${
+      solicitud.datos.apellidosAcompanante || ""
+    }`;
+
+    return `
             <div class="detalles-solicitud">
                 <div class="detalle-header">
                     <h4>Solicitud ${solicitud.resultado.numeroSolicitud}</h4>
-                    <span class="status-badge status-${solicitud.resultado.estado}">
-                        ${this.capitalizarPrimeraLetra(solicitud.resultado.estado)}
+                    <span class="status-badge status-${
+                      solicitud.resultado.estado
+                    }">
+                        ${this.capitalizarPrimeraLetra(
+                          solicitud.resultado.estado
+                        )}
                     </span>
                 </div>
 
@@ -320,10 +356,14 @@ class DashboardMenores {
                             <strong>Nombre:</strong> ${nombreCompleto}
                         </div>
                         <div class="detalle-item">
-                            <strong>Fecha de Nacimiento:</strong> ${solicitud.datos.fechaNacimiento}
+                            <strong>Fecha de Nacimiento:</strong> ${
+                              solicitud.datos.fechaNacimiento
+                            }
                         </div>
                         <div class="detalle-item">
-                            <strong>Nacionalidad:</strong> ${this.capitalizarPrimeraLetra(solicitud.datos.nacionalidad)}
+                            <strong>Nacionalidad:</strong> ${this.capitalizarPrimeraLetra(
+                              solicitud.datos.nacionalidad
+                            )}
                         </div>
                     </div>
                 </div>
@@ -332,13 +372,17 @@ class DashboardMenores {
                     <h5>Datos del Acompañante</h5>
                     <div class="detalle-grid">
                         <div class="detalle-item">
-                            <strong>RUT:</strong> ${solicitud.datos.rutAcompanante || 'N/A'}
+                            <strong>RUT:</strong> ${
+                              solicitud.datos.rutAcompanante || "N/A"
+                            }
                         </div>
                         <div class="detalle-item">
                             <strong>Nombre:</strong> ${nombreAcompanante}
                         </div>
                         <div class="detalle-item">
-                            <strong>Relación:</strong> ${this.capitalizarPrimeraLetra(solicitud.datos.relacionAcompanante || 'N/A')}
+                            <strong>Relación:</strong> ${this.capitalizarPrimeraLetra(
+                              solicitud.datos.relacionAcompanante || "N/A"
+                            )}
                         </div>
                     </div>
                 </div>
@@ -347,58 +391,73 @@ class DashboardMenores {
                     <h5>Información del Proceso</h5>
                     <div class="detalle-grid">
                         <div class="detalle-item">
-                            <strong>Tipo de Proceso:</strong> ${this.capitalizarPrimeraLetra(solicitud.proceso)}
+                            <strong>Tipo de Proceso:</strong> ${this.capitalizarPrimeraLetra(
+                              solicitud.proceso
+                            )}
                         </div>
                         <div class="detalle-item">
-                            <strong>Tipo de Autorización:</strong> ${this.capitalizarPrimeraLetra(solicitud.datos.tipoAutorizacion)}
+                            <strong>Tipo de Autorización:</strong> ${this.capitalizarPrimeraLetra(
+                              solicitud.datos.tipoAutorizacion
+                            )}
                         </div>
                         <div class="detalle-item">
                             <strong>Fecha de Solicitud:</strong> ${fecha}
                         </div>
                         <div class="detalle-item">
-                            <strong>Fecha de Procesamiento:</strong> ${solicitud.resultado.fechaProcesamiento}
+                            <strong>Fecha de Procesamiento:</strong> ${
+                              solicitud.resultado.fechaProcesamiento
+                            }
                         </div>
                     </div>
                 </div>
 
                 <div class="detalle-actions">
-                    <button class="btn-secondary" onclick="dashboardMenores.imprimirSolicitud(${solicitud.id})">
+                    <button class="btn-secondary" onclick="dashboardMenores.imprimirSolicitud(${
+                      solicitud.id
+                    })">
                         <span class="material-symbols-outlined">print</span>
                         Imprimir
                     </button>
-                    <button class="btn-primary" onclick="dashboardMenores.duplicarSolicitud(${solicitud.id})">
+                    <button class="btn-primary" onclick="dashboardMenores.duplicarSolicitud(${
+                      solicitud.id
+                    })">
                         <span class="material-symbols-outlined">content_copy</span>
                         Duplicar
                     </button>
                 </div>
             </div>
         `;
+  }
+
+  editarSolicitud(id) {
+    // Redirigir al formulario con los datos precargados
+    localStorage.setItem("editarSolicitud", id);
+    window.location.href = "modulo-menores.html";
+  }
+
+  eliminarSolicitud(id) {
+    if (confirm("¿Está seguro de que desea eliminar esta solicitud?")) {
+      this.solicitudes = this.solicitudes.filter((s) => s.id !== id);
+      localStorage.setItem(
+        "solicitudesMenores",
+        JSON.stringify(this.solicitudes)
+      );
+      this.cargarSolicitudes();
+      this.aplicarFiltros();
     }
+  }
 
-    editarSolicitud(id) {
-        // Redirigir al formulario con los datos precargados
-        localStorage.setItem('editarSolicitud', id);
-        window.location.href = 'modulo-menores.html';
-    }
+  imprimirSolicitud(id) {
+    const solicitud = this.solicitudes.find((s) => s.id === id);
+    if (!solicitud) return;
 
-    eliminarSolicitud(id) {
-        if (confirm('¿Está seguro de que desea eliminar esta solicitud?')) {
-            this.solicitudes = this.solicitudes.filter(s => s.id !== id);
-            localStorage.setItem('solicitudesMenores', JSON.stringify(this.solicitudes));
-            this.cargarSolicitudes();
-            this.aplicarFiltros();
-        }
-    }
-
-    imprimirSolicitud(id) {
-        const solicitud = this.solicitudes.find(s => s.id === id);
-        if (!solicitud) return;
-
-        const ventanaImpresion = window.open('', '_blank');
-        ventanaImpresion.document.write(`
+    const ventanaImpresion = window.open("", "_blank");
+    ventanaImpresion.document.write(`
             <html>
                 <head>
-                    <title>Autorización - ${solicitud.resultado.numeroSolicitud}</title>
+                    <title>Autorización - ${
+                      solicitud.resultado.numeroSolicitud
+                    }</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 20px; }
                         .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; }
@@ -416,117 +475,135 @@ class DashboardMenores {
                     <div class="content">
                         <h3>Datos del Menor</h3>
                         <p><strong>RUT:</strong> ${solicitud.datos.rutMenor}</p>
-                        <p><strong>Nombre:</strong> ${solicitud.datos.nombresMenor} ${solicitud.datos.apellidosMenor}</p>
+                        <p><strong>Nombre:</strong> ${
+                          solicitud.datos.nombresMenor
+                        } ${solicitud.datos.apellidosMenor}</p>
                         <p><strong>Estado:</strong> <span class="status-approved">${solicitud.resultado.estado.toUpperCase()}</span></p>
                     </div>
                     <div class="footer">
-                        <p>Documento generado el ${new Date().toLocaleString('es-CL')}</p>
+                        <p>Documento generado el ${new Date().toLocaleString(
+                          "es-CL"
+                        )}</p>
                     </div>
                 </body>
             </html>
         `);
-        ventanaImpresion.document.close();
-        ventanaImpresion.print();
-    }
+    ventanaImpresion.document.close();
+    ventanaImpresion.print();
+  }
 
-    duplicarSolicitud(id) {
-        const solicitud = this.solicitudes.find(s => s.id === id);
-        if (!solicitud) return;
+  duplicarSolicitud(id) {
+    const solicitud = this.solicitudes.find((s) => s.id === id);
+    if (!solicitud) return;
 
-        const nuevaSolicitud = {
-            ...solicitud,
-            id: Date.now(),
-            resultado: {
-                ...solicitud.resultado,
-                numeroSolicitud: 'MEN-' + Date.now().toString().slice(-6),
-                estado: 'pendiente',
-                fechaProcesamiento: new Date().toLocaleString('es-CL')
-            },
-            fecha: new Date().toISOString()
-        };
+    const timestamp = Date.now();
+    const nuevaSolicitud = {
+      ...solicitud,
+      id: Date.now(),
+      resultado: {
+        ...solicitud.resultado,
+        numeroSolicitud: `TR-${timestamp}`,
+        estado: "pendiente",
+        fechaProcesamiento: new Date().toLocaleString("es-CL"),
+      },
+      fecha: new Date().toISOString(),
+    };
 
-        this.solicitudes.push(nuevaSolicitud);
-        localStorage.setItem('solicitudesMenores', JSON.stringify(this.solicitudes));
-        this.cargarSolicitudes();
-        this.aplicarFiltros();
-        
-        alert('Solicitud duplicada exitosamente');
-    }
+    this.solicitudes.push(nuevaSolicitud);
+    localStorage.setItem(
+      "solicitudesMenores",
+      JSON.stringify(this.solicitudes)
+    );
+    this.cargarSolicitudes();
+    this.aplicarFiltros();
 
-    exportarDatos() {
-        const datos = this.solicitudesFiltradas.map(s => ({
-            numero: s.resultado.numeroSolicitud,
-            rut: s.datos.rutMenor,
-            nombre: `${s.datos.nombresMenor} ${s.datos.apellidosMenor}`,
-            tipo: s.proceso,
-            fecha: new Date(s.fecha).toLocaleDateString('es-CL'),
-            estado: s.resultado.estado
-        }));
+    alert("Solicitud duplicada exitosamente");
+  }
 
-        const csv = this.convertirACSV(datos);
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', `solicitudes_menores_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+  exportarDatos() {
+    const datos = this.solicitudesFiltradas.map((s) => ({
+      numero: s.resultado.numeroSolicitud,
+      rut: s.datos.rutMenor,
+      nombre: `${s.datos.nombresMenor} ${s.datos.apellidosMenor}`,
+      tipo: s.proceso,
+      fecha: new Date(s.fecha).toLocaleDateString("es-CL"),
+      estado: s.resultado.estado,
+    }));
 
-    convertirACSV(datos) {
-        const headers = ['Número', 'RUT', 'Nombre', 'Tipo', 'Fecha', 'Estado'];
-        const rows = datos.map(d => [d.numero, d.rut, d.nombre, d.tipo, d.fecha, d.estado]);
-        
-        return [headers, ...rows]
-            .map(row => row.map(cell => `"${cell}"`).join(','))
-            .join('\n');
-    }
+    const csv = this.convertirACSV(datos);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
 
-    inicializarGraficos() {
-        // Simulación de gráficos (en un proyecto real se usaría Chart.js)
-        this.actualizarGraficoMensual();
-        this.actualizarGraficoProcesos();
-    }
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `solicitudes_menores_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
 
-    actualizarGraficoMensual() {
-        const canvas = document.getElementById('chartMensual');
-        const ctx = canvas.getContext('2d');
-        
-        // Simulación de gráfico de barras
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#4CAF50';
-        ctx.fillRect(50, 150, 40, 50);
-        ctx.fillRect(100, 120, 40, 80);
-        ctx.fillRect(150, 100, 40, 100);
-        ctx.fillRect(200, 80, 40, 120);
-    }
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
-    actualizarGraficoProcesos() {
-        const canvas = document.getElementById('chartProcesos');
-        const ctx = canvas.getContext('2d');
-        
-        // Simulación de gráfico circular
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#2196F3';
-        ctx.beginPath();
-        ctx.arc(200, 100, 60, 0, Math.PI * 2 * 0.4);
-        ctx.lineTo(200, 100);
-        ctx.fill();
-    }
+  convertirACSV(datos) {
+    const headers = ["Número", "RUT", "Nombre", "Tipo", "Fecha", "Estado"];
+    const rows = datos.map((d) => [
+      d.numero,
+      d.rut,
+      d.nombre,
+      d.tipo,
+      d.fecha,
+      d.estado,
+    ]);
 
-    capitalizarPrimeraLetra(str) {
-        if (!str) return '';
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
+    return [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+  }
+
+  inicializarGraficos() {
+    // Simulación de gráficos (en un proyecto real se usaría Chart.js)
+    this.actualizarGraficoMensual();
+    this.actualizarGraficoProcesos();
+  }
+
+  actualizarGraficoMensual() {
+    const canvas = document.getElementById("chartMensual");
+    const ctx = canvas.getContext("2d");
+
+    // Simulación de gráfico de barras
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#4CAF50";
+    ctx.fillRect(50, 150, 40, 50);
+    ctx.fillRect(100, 120, 40, 80);
+    ctx.fillRect(150, 100, 40, 100);
+    ctx.fillRect(200, 80, 40, 120);
+  }
+
+  actualizarGraficoProcesos() {
+    const canvas = document.getElementById("chartProcesos");
+    const ctx = canvas.getContext("2d");
+
+    // Simulación de gráfico circular
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#2196F3";
+    ctx.beginPath();
+    ctx.arc(200, 100, 60, 0, Math.PI * 2 * 0.4);
+    ctx.lineTo(200, 100);
+    ctx.fill();
+  }
+
+  capitalizarPrimeraLetra(str) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 }
 
 // Inicializar dashboard cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    window.dashboardMenores = new DashboardMenores();
+document.addEventListener("DOMContentLoaded", () => {
+  window.dashboardMenores = new DashboardMenores();
 });
 
 // Estilos adicionales para el dashboard
@@ -840,6 +917,6 @@ const dashboardStyles = `
 `;
 
 // Agregar estilos al documento
-const dashboardStyleSheet = document.createElement('style');
+const dashboardStyleSheet = document.createElement("style");
 dashboardStyleSheet.textContent = dashboardStyles;
-document.head.appendChild(dashboardStyleSheet); 
+document.head.appendChild(dashboardStyleSheet);
